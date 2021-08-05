@@ -726,10 +726,6 @@ function redraw(){
     }
   }
   ctx.restore();
-  for(let button of buttons){
-    button.draw();
-  }
-
 }
 function controls(){
   keyPressed();
