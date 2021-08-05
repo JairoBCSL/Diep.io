@@ -1,0 +1,57 @@
+//
+// parado0, tiro1, stAndar2, andar3, tiroAndar4, stPula5, pula6, cai7, pousa8, stPulaTiro9,
+//pulaTiro10, caiTiro11, pousaTiro12, stDash13, dash14, stTiroDash15, tiroDash16
+// obj.nFrame.state[0]
+
+spriteX = {	//obj.states[0].posicaoY;
+	"nState":4,
+	"states":[
+		{// parado0
+			"nFrames":1,
+			"posicaoX":0,
+			"posicaoY":40,
+			"frameWidth":64,
+			"frameHeight":64,
+		},
+		{// andando1
+			"nFrames":10,
+			"posicaoX":34,
+			"posicaoY":0,
+			"frameWidth":34,
+			"frameGap":34,
+			"frameHeight":35,
+			"frameCounts":[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+			"frameWaits":[4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+		},
+		{// pulando2
+			"nFrames":3,
+			"posicaoX":0,
+			"posicaoY":79,
+			"frameWidth":30,
+			"frameGap":30,
+			"frameHeight":46,
+			"frameCounts":[0,1,2],
+			"frameWaits":[5, 2, 1000]
+		},
+		{// caindo3
+			"nFrames":2,
+			"posicaoX":90,
+			"posicaoY":80,
+			"frameWidth":30,
+			"frameGap":30,
+			"frameHeight":46,
+			"frameCounts":[0, 1],
+			"frameWaits":[10, 1000]
+		},
+		{// tiro4
+			"nFrames":2,
+			"posicaoX":140,
+			"posicaoY":40,
+			"frameWidth":30,
+			"frameGap":35,
+			"frameHeight":34,
+			"frameCounts":[0, 1],
+			"frameWaits":[5, 5]
+		}
+	]
+}

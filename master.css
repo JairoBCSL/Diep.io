@@ -1,0 +1,18 @@
+body{
+  background: #444;
+  margin: 0;
+}
+
+canvas {
+  display: inline;
+  border:1px solid #d3d3d3;
+  background: #888;
+}
+
+div{
+  position: absolute;
+  right: 1;
+  top: 5;
+  border: 1px solid red;
+  display: inline-block;
+}
