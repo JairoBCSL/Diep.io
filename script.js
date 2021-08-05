@@ -734,9 +734,6 @@ function redraw(){
 function controls(){
   keyPressed();
   keyReleased();
-  entities[0].up = false; entities[0].left = false; entities[0].down = false; entities[0].right = false;
-  for(let button of buttons)
-    button.touchDentro();
 }
 
 function physic(){
