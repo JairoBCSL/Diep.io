@@ -575,46 +575,6 @@ class Base{
   }
 }
 
-class Button{
-  constructor(x, y, r, cmd){
-    this.x = x; this.y = y; this.r = r; this.cmd = cmd;
-  }
-  touchDentro(){
-    if(buttons.indexOf(this) == 0)
-      console.log(this.x + this.r+", "+this.y + this.r);
-    if(Math.sqrt(Math.pow(game.mouseX - this.x - this.r / 2, 2) + Math.pow(game.mouseY - this.y - this.r / 2, 2)) <= 48){
-      switch(this.cmd){
-        case "U":{
-          entities[0].up = true;
-          console.log("U");
-          break;
-        }case "L":{
-          entities[0].left = true;
-          console.log("L");
-          break;
-        }case "D":{
-          entities[0].down = true;
-          console.log("D");
-          break;
-        }case "R":{
-          entities[0].right = true;
-          console.log("R");
-          break;
-        }
-      }
-    }
-
-  }
-  draw(){
-    var ctx = game.canvas.getContext("2d");
-    ctx.save();
-    var circle = new Path2D();
-    ctx.fillStyle = "#F008";
-    ctx.fillRect(this.x, this.y, this.r, this.r, 0, 2 * Math.PI);
-    ctx.restore();
-  }
-}
-
 var game = {
   canvas: document.createElement("canvas"),
   start: function(){
@@ -696,11 +656,6 @@ var cam = {
   }
 };
 
-buttons = [];
-buttons.push(new Button(32 + 64, 32, 64, "U"));
-buttons.push(new Button(32, 32 + 64, 64, "L"));
-buttons.push(new Button(32 + 64, 32 + 2 * 64, 64, "D"));
-buttons.push(new Button(32 + 2 * 64, 32 + 64, 64, "R"));
 map = new Map(mapas.layers, 256, 192, 16, "tiles.png", 3);
 entities = [];
 projetils = [];
