@@ -575,6 +575,46 @@ class Base{
   }
 }
 
+class Button{
+  constructor(x, y, r, cmd){
+    this.x = x; this.y = y; this.r = r; this.cmd = cmd;
+  }
+  touchDentro(){
+    if(buttons.indexOf(this) == 0)
+      console.log(this.x + this.r+", "+this.y + this.r);
+    if(Math.sqrt(Math.pow(game.mouseX - this.x - this.r / 2, 2) + Math.pow(game.mouseY - this.y - this.r / 2, 2)) <= 48){
+      switch(this.cmd){
+        case "U":{
+          entities[0].up = true;
+          console.log("U");
+          break;
+        }case "L":{
+          entities[0].left = true;
+          console.log("L");
+          break;
+        }case "D":{
+          entities[0].down = true;
+          console.log("D");
+          break;
+        }case "R":{
+          entities[0].right = true;
+          console.log("R");
+          break;
+        }
+      }
+    }
+
+  }
+  draw(){
+    var ctx = game.canvas.getContext("2d");
+    ctx.save();
+    var circle = new Path2D();
+    ctx.fillStyle = "#F008";
+    ctx.fillRect(this.x, this.y, this.r, this.r, 0, 2 * Math.PI);
+    ctx.restore();
+  }
+}
+
 var game = {
   canvas: document.createElement("canvas"),
   start: function(){
@@ -656,6 +696,11 @@ var cam = {
   }
 };
 
+buttons = [];
+buttons.push(new Button(32 + 64, 32, 64, "U"));
+buttons.push(new Button(32, 32 + 64, 64, "L"));
+buttons.push(new Button(32 + 64, 32 + 2 * 64, 64, "D"));
+buttons.push(new Button(32 + 2 * 64, 32 + 64, 64, "R"));
 map = new Map(mapas.layers, 256, 192, 16, "tiles.png", 3);
 entities = [];
 projetils = [];
@@ -719,20 +764,24 @@ function redraw(){
       }
     }
     if(k == 0){
-      for(let entity of entities){
+      for(let entity of entities)
         entity.draw();
-      }
-      for(let projetil of projetils){
+      for(let projetil of projetils)
         projetil.drawProjetil();
-      }
     }
   }
   ctx.restore();
+  for(let button of buttons){
+    button.draw();
+  }
 
 }
 function controls(){
   keyPressed();
   keyReleased();
+  entities[0].up = false; entities[0].left = false; entities[0].down = false; entities[0].right = false;
+  for(let button of buttons)
+    button.touchDentro();
 }
 
 function physic(){
@@ -827,7 +876,7 @@ function debug(){
     //if(collision({x:game.mouseX+cam.x,y:game.mouseY+cam.y,w:1,h:1}, entities[i]))
       //x = i;
   text = "";
-  text += "Player:" + x ;
+  /*text += "Player:" + x ;
   text += "<br><br>Posição: (" + Math.floor(entities[x].x) + "/" + Math.floor(entities[x].y) + ")";
   text += "<br><br>Mouse: (" + game.mouseX + "/" + game.mouseY + ")";
   text += "<br><br>HP: (" + entities[x].hp + "/" + entities[x].hpMax + ")";
@@ -840,7 +889,11 @@ function debug(){
   text += "<br><br>BulletD: " + entities[x].bulletDmg;
   text += "<br><br>Reload : " + entities[x].reload + "/" + entities[x].reloadMax;
   text += "<br><br>MoveS : " + entities[x].spdMax;
-  text += "<br><br>Exp : " + entities[x].exp + "/" + entities[x].nextLv;
+  text += "<br><br>Exp : " + entities[x].exp + "/" + entities[x].nextLv;*/
+  text += "<br><br>Up : " + entities[x].up;
+  text += "<br><br>Left : " + entities[x].left;
+  text += "<br><br>Down : " + entities[x].down;
+  text += "<br><br>Right : " + entities[x].right;
   text += "<br><br>Enemies : " + entities.length;
   count++;
   if((new Date().getTime() - timestamp) >= 1000){
