@@ -1,7 +1,22 @@
 var fps = 60, timestamp = new Date().getTime(), count = 0, aux = 0;
 var vezes = 0, vezesAux = 0, aff = "", levelUp = 0;
-var classes = [[1, 2, 3, 4, 5], [6, 7], [8, 9, 10], [11, 12, 13, 14], [15, 9, 10]];
-var precos = [[1, 1, 1, 1, 2], [1, 1], [1, 1, 1], [1, 1, 1, 1], [1, 1, 1]];
+var classes = [[4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
+               [4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
+               [4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4],//Twin
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4],//Sniper
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 1],//Flank
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Smasher
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+             ];
 
 var game = {
   width: 8192,
@@ -701,7 +716,14 @@ class Entity{
       }
 
     }
-    this.ptClasse -= precos[this.classe][classe];
+    if(!entities.indexOf(this))
+      console.log("Tem "+this.ptClasse+" pontos");
+    this.ptClasse -= classes[this.classe][classe];
+    if(!entities.indexOf(this)){
+      console.log("Tirou "+classes[this.classe][classe]+" pontos");
+      console.log("Agora tem "+this.ptClasse+" pontos");
+      console.log("E passou da classe "+this.classe+" para a classe "+classe);
+    }
     this.classe = classe;
     this.updateStats();
   }
@@ -1508,22 +1530,25 @@ class Hud{
   }
   drawClass(){
     var ctx = game.canvas.getContext("2d");
-    var nClasses = 0;
-    for(let i = 0; i < classes[entities[0].classe].length; i++){
-      console.log("Tem: " + classes[entities[0].classe].length + "opções");
-      if(entities[0].ptClasse >= precos[entities[0].classe][i]){
-        nClasses++;
+    var nClasses = [];
+    for(let i = 0; i < classes[0].length; i++){
+      console.log("Tentou "+i);
+      if(entities[0].ptClasse >= classes[entities[0].classe][i]){
+        nClasses.push(i);
+        console.log("Adicionou "+i);
       }
     }
     ctx.fillStyle = "#888a";
-    ctx.fillRect(cam.x, cam.y, (nClasses > 1)?256:128, Math.ceil(nClasses / 2) * 128);
+    ctx.fillRect(cam.x, cam.y, (nClasses.length>1)?256:128, Math.ceil(nClasses.length/2)*128);
     ctx.strokeStyle = "#000f";
-    ctx.fillRect(cam.x, cam.y, (nClasses > 1)?256:128, Math.ceil(nClasses / 2) * 128);
-    for(let i = 0; i < classes[entities[0].classe].length; i++){
-      if(entities[0].ptClasse >= precos[entities[0].classe][i]){
-        let x = (i % 2) * 128; let y = Math.floor(i / 2) * 128;
-        this.botoesClasses[classes[entities[0].classe][i]].draw(cam.x + x, cam.y + y);
-      }
+    ctx.fillRect(cam.x, cam.y, (nClasses.length>1)?256:128, Math.ceil(nClasses.length/2)*128);
+    /*console.log("Tem [");
+    for(let i of nClasses)
+      console.log("{"+i.classe+","+i.preco+"},");
+    console.log("];")*/
+    for(let i = 0; i < nClasses.length; i++){
+      let x = (i % 2) * 128; let y = Math.floor(i / 2) * 128;
+      this.botoesClasses[nClasses[i]].draw(cam.x + x, cam.y + y);
     }
   }
 }
@@ -1741,6 +1766,7 @@ function debug(){
 
 /*
 Classes:
+Os Smashers causam mais dano girando
 A Bala que explode
 O Teleguiado
 O Escudador
