@@ -5,7 +5,7 @@ class Enemy extends Nave{
     for(let nave of naves){ // Procurando inimigo
       if(nave.team != this.team){
         atualDist = Math.sqrt(Math.pow(nave.x+nave.w/2-this.x-this.w/2, 2) + Math.pow(nave.y+nave.h/2-this.y-this.h/2, 2));
-        if(atualDist < 450){
+        if(atualDist < this.w * 9){
           pertos++;
           perigo += nave.batalha;
         }
@@ -15,8 +15,20 @@ class Enemy extends Nave{
         }
       }else{
         amigoDist = Math.sqrt(Math.pow(nave.x+nave.w/2-this.x-this.w/2, 2) + Math.pow(nave.y+nave.h/2-this.y-this.h/2, 2));
-        if(amigoDist < 450){
+        if(amigoDist < this.w * 9){
           perigo -= nave.batalha;
+        }
+      }
+    }
+    for(let base of bases){ // Procurando base
+      if(base.team != this.team){
+        if(collisionSQ(this, {x:base.x-base.w/3, y:base.y-base.h/3, w:base.w*5/3, h:base.h*5/3})){
+          perigo = 999999;
+          pertos++;
+        }
+      }else {
+        if(collisionSQ(this, {x:base.x, y:base.y, w:base.w, h:base.h})){
+          perigo = -999999;
         }
       }
     }
@@ -28,9 +40,9 @@ class Enemy extends Nave{
       let modulo = Math.sqrt( Math.pow(this.x+this.w-naves[maisPerto].x-naves[maisPerto].w, 2) + Math.pow(this.y+this.h-naves[maisPerto].y-naves[maisPerto].h, 2) );
       let angulo = Math.atan2(this.y+this.h-naves[maisPerto].y-naves[maisPerto].h, naves[maisPerto].x+naves[maisPerto].w-this.x-this.w);
       let vai;
-      if(Math.abs(perigo) >= 3 * this.batalha)
+      if(perigo >= 3 * this.batalha)
         vai = -1;
-      else if(Math.abs(perigo) < 3 * this.batalha && modulo > 110)
+      else if(perigo < 3 * this.batalha && modulo > this.w * 20)
         vai = +1;
       else
         vai = 0;

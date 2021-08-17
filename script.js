@@ -1,21 +1,22 @@
 var fps = 60, timestamp = new Date().getTime(), count = 0, aux = 0;
 var vezes = 0, vezesAux = 0, aff = "", levelUp = 0;
-var classes = [[4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
-               [4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
-               [4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4],//Twin
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4],//Sniper
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 1],//Flank
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Smasher
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+var classes = [[4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
+               [4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4],//Sniper
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 1, 4, 4, 4, 4],//Flank
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Smasher
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1],//Destroyer
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Gunner
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Rifle
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Tiple Shor
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Quad Shot
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin Flank
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Stalker
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Overseer
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Hunter
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Trapper
+               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]//Tri-Angle
              ];
 
 var game = {
@@ -37,8 +38,8 @@ var game = {
       game.keys[e.keyCode] = !(e.type != "keydown");
     })
     this.canvas.addEventListener('mousemove', function (e) {
-        game.mouseX = e.pageX;// + cam.x;
-        game.mouseY = e.pageY;// + cam.y;
+        game.mouseX = e.pageX;// * (1 + naves[0].lv / 90);// + cam.x;
+        game.mouseY = e.pageY;// * (1 + naves[0].lv / 90);// + cam.y;
     })
     this.mouseClick = {"button":0, "type":"mousedown"}
     this.canvas.addEventListener('mousedown', function (e) {
@@ -111,7 +112,8 @@ bases = [];
 drones = [];
 bases.push(new Base(32, 32, 1200, game.height - 32 - 32, 0));
 bases.push(new Base(game.width - 1200 - 32, 32, 1200, game.height - 32 - 32, 1));
-naves.push(new Player("nave.png", spriteX, 300, 300, 160, 160, 3, 5, 0, 0, naves.length));
+naves.push(new Player("nave.png", spriteX, 64, 64, 160, 160, 3, 5, 0, 0, naves.length));
+//naves.push(new Enemy("nave.png", spriteX, 4400, 64, 64, 64, 3, 5, 1, 0, naves.length));
 for(let i = 0; i < 0; i++)
   naves.push(new Enemy("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 32), bases[0].y + Math.floor(Math.random() * bases[0].h - 32), 64, 64, 3, 5, 0, 0, naves.length));
 for(let i = 0; i < 0; i++)
@@ -144,7 +146,7 @@ function redraw(){
   var ctx = game.canvas.getContext("2d");
   cam.center();
   ctx.save();
-  //ctx.scale(cam.wMin / cam.w, cam.hMin / cam.h);
+  ctx.scale(cam.wMin / cam.w, cam.hMin / cam.h);
   ctx.translate(-cam.x, -cam.y);
   for(let base of bases) // Bases
     base.draw();
