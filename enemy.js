@@ -20,7 +20,7 @@ class Enemy extends Nave{
         }
       }
     }
-    for(let base of bases){ // Procurando base
+    /*for(let base of bases){ // Procurando base
       if(base.team != this.team){
         if(collisionSQ(this, {x:base.x-base.w/3, y:base.y-base.h/3, w:base.w*5/3, h:base.h*5/3})){
           perigo = 999999;
@@ -31,11 +31,12 @@ class Enemy extends Nave{
           perigo = -999999;
         }
       }
-    }
+    }*/
     // Tem alguém perto?
     if(pertos){
       // Ataca
-      this.rot = Math.atan2(naves[maisPerto].y+naves[maisPerto].h/2 - this.y - this.h/2, naves[maisPerto].x+naves[maisPerto].w-this.x-this.w);
+      if(this.classe == 17 || this.classe == 29) // Autos
+        this.rot = Math.atan2(naves[maisPerto].y+naves[maisPerto].h/2 - this.y - this.h/2, naves[maisPerto].x+naves[maisPerto].w-this.x-this.w);
       this.tiro = 1;
       let modulo = Math.sqrt( Math.pow(this.x+this.w-naves[maisPerto].x-naves[maisPerto].w, 2) + Math.pow(this.y+this.h-naves[maisPerto].y-naves[maisPerto].h, 2) );
       let angulo = Math.atan2(this.y+this.h-naves[maisPerto].y-naves[maisPerto].h, naves[maisPerto].x+naves[maisPerto].w-this.x-this.w);

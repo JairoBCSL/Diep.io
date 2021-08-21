@@ -19,8 +19,8 @@ class Npc{
   }
   fisica() {
     if(this.hp <= 0){
-      this.x = Math.floor(Math.random() * 4096 - 16);
-      this.y = Math.floor(Math.random() * 3072 - 16);
+      this.x = bases[0].x + Math.floor(Math.random() * bases[0].w - 16);
+      this.y = bases[0].y + Math.floor(Math.random() * bases[0].h - 16);
       this.hp = this.hpMax;
     }
   }

@@ -1,18 +1,18 @@
 class Bala{
-  constructor(spriteSRC, x, y, w, h, spd, rot, hpMax, bodyDmg, team, classe, id){
+  constructor(spriteSRC, x, y, w, h, spd, rot, hpMax, bodyDmg, team, classe, id, n){
     this.sprite = new Image();
     this.sprite.src = spriteSRC;
     //this.spriteCFG = spriteCFG;
     this.x = x; this.y = y; this.w = w; this.h = h; this.wSRC = 128; this.hSRC = 128;
-    if(classe == 14)
-        this.xSRC = 384;
+    if((classe == 15) || (classe == 23 && n == 2) || (classe == 35 && n == 0) || classe == 42 || (classe == 43 && n == 0) || classe == 44)
+      this.xSRC = 386;
     else
       this.xSRC = 0;
     this.ySRC = 128 * team;
 
     this.hpMax = hpMax; this.hp = this.hpMax; this.bodyDmg = bodyDmg;
-    this.rot = rot; this.spd = spd; this.spdMax = this.spd; this.team = team; this.classe = classe;
-    this.id = id;
+    this.rot = rot; this.spd = spd; this.spdMax = this.spd; this.team = team;
+    this.classe = classe; this.id = id; this.n = n;
     this.waitCount = 0; this.frameCount = 0; this.estado = 0; this.estado_a = 0;
   }
   fisica(){
@@ -32,17 +32,17 @@ class Bala{
       }if(foi)
         break;
     }
-    if(this.classe == 14){
+    if((this.classe == 15) || (this.classe == 23 &&  this.n == 2) || (this.classe == 35 &&  this.n == 0) || this.classe == 42 || (this.classe == 43 && this.n == 0) || this.classe == 44){
       this.spd -= this.spdMax * 0.02;
-      this.hp -= this.hpMax * 0.001;
+      this.hp -= 0.125;
     }else{
       this.spd -= this.spdMax * 0.002;
-      this.hp -= this.hpMax * 0.005;
+      this.hp -= 0.5;
     }
   }
   dano(){
     for(let i = balas.indexOf(this) + 1; i < balas.length; i++){ // Colidiu com bala inimigos m*m
-      if(true){
+      if(this.team != balas[i].team){
         if(collision(this, balas[i])){
           let difX = (balas[i].x + balas[i].w / 2) - (this.x + this.w / 2);
           let difY = (balas[i].y + balas[i].h / 2) - (this.y + this.h / 2);
@@ -55,10 +55,8 @@ class Bala{
             balas[i].x += Math.cos(angulo);
           if(balas[i].y + Math.sin(angulo) < game.height && balas[i].y + Math.sin(angulo) > 0)
             balas[i].y += Math.sin(angulo);
-          if(this.team != balas[i].team){
-            balas[i].hp -= this.bodyDmg;
-            this.hp -= balas[i].bodyDmg;
-          }
+          balas[i].hp -= this.bodyDmg;
+          this.hp -= balas[i].bodyDmg;
         }
       }
 
@@ -157,7 +155,7 @@ class Bala{
       ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
 
       ctx.restore();
-      //this.stats();
+      this.stats();
     }
   }
   stats(){

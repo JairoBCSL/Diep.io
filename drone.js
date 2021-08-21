@@ -6,7 +6,11 @@ class Drone{
     this.wA = this.w; this.hA = this.h;
     this.canoX = 0; this.canoY = 0; this.canoZ = 0; this.canoW = 0;
     this.id = id; this.hover = 0; naves[this.id].drones++;
-    this.xSRC = 128 * classe; this.ySRC = 128 * team; this.wSRC = 128; this.hSRC = 128; // Sprite
+    if(classe == 33)
+      this.xSRC = 257;
+    else
+      this.xSRC = 129;
+    this.ySRC = 128 * team; this.wSRC = 128; this.hSRC = 128; // Sprite
     this.hp = bulletPen; this.hpMax = bulletPen; this.hpRegen = 1; this.bodyDmg = bulletDmg; // Stats
     this.bulletSpd = 4; this.bulletPen = 60; this.bulletDmg = 9;
     this.bulletSize = 24; this.team = team; this.spdMax = spdMax / 3;
@@ -192,6 +196,10 @@ class Drone{
           if(npc.hp <= 0){
             naves[this.id].exp += npc.expTotal;
             naves[this.id].expTotal += npc.expTotal;
+            if(this.classe == 33 && naves[this.id].drones < 16 && npc.classe == 0){
+              drones.push(new Drone("bala.png", npc.x, npc.y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, this.team, this.classe, this.id));
+              npc.fisica();
+            }
           }
           this.hp -= npc.bodyDmg;
           this.regenCooldown = this.regenCooldownMax;
@@ -199,6 +207,7 @@ class Drone{
     }
   }
   move(){
+    //console.log(this.id+": "+this.hp);
     this.dirX = this.right - this.left; // Andando
     this.dirY = this.down - this.up;
     if(this.dirX || this.dirY){
@@ -250,6 +259,8 @@ class Drone{
       }if(foi)
         break;
     }
+    if(this.classe == 31)
+      this.hp -= 0.5;
   }
   updateStats(){
     this.w = this.wA * (1 + naves[this.id].lv / 90);
@@ -274,7 +285,7 @@ class Drone{
       ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
 
       ctx.restore();
-      this.stats();
+      //this.stats();
     }
   }
   stats(){

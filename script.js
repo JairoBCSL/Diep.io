@@ -1,24 +1,65 @@
-var fps = 60, timestamp = new Date().getTime(), count = 0, aux = 0;
-var vezes = 0, vezesAux = 0, aff = "", levelUp = 0;
-var classes = [[4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
-               [4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4],//Sniper
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 1, 4, 4, 4, 4],//Flank
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Smasher
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1],//Destroyer
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Gunner
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Rifle
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Tiple Shor
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Quad Shot
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin Flank
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Stalker
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Overseer
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Hunter
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Trapper
-               [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]//Tri-Angle
-             ];
+/*
+Só procurar se tiver na tela (cam.x<x<cam.w+cam.w)
+Skimmer
+Rocketeer
+Annihinator
+Smashers
+Triangles
+Recoil
+Technicians
+Modo Mothership
+Modo Conquista
+Modo Pega bandeiras
 
+Classes:
+- Stalker (3ª classe): Invisível quando não se move
+  - Assassin (4ª classe): Invisível + instakill se for de costas perto
+  - Watcher (4ª classe): Insivível + vê longe mirando
+  - Ranger (4ª classe): Invisível + Maior alcance
+- Hunter (3ª classe): Dá dash
+  - Predator (4ª classe): Invisível + Dash
+  - Charger (4ª classe): Dash + Carga
+- Smasher (3ª classe)
+  - Grinder (4ª classe): Causa mais dano girando
+  - Auto Smasher (4ª classe): Já sabe
+  - Landmine (4ª classe): Fica invisível
+- Destroyer (3ª classe)
+  - Annihinator (3ª classe): Bala explode
+- Technician (3ª classe) Instala torreta
+  - Engennier (4ª classe) Instala base talvez
+  - Scientist (4ª classe) Teleporta
+  - Medic (4ª classe) Cura em raio ou tiro, ainda não sei
+
+O Escudador
+O Excalibur
+O Bardo
+*/
+
+var fps = 60, timestamp = new Date().getTime(), count = 0, aux = 0;
+var vezes = 0, vezesAux = 0, aff = "", levelUp = 0, meuID = 0;
+
+var classes = [
+ //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44
+  [4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
+  [4, 4, 4, 4, 4, 4, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Sniper
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Flank
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Smasher
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Destroyer
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Gunner
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Rifle
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Tiple Shot
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Quad Tank
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin Flank
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 1, 4, 4, 4],//Stalker
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4],//Overseer
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4],//Hunter
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 1, 1, 1],//Trapper
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Tri-Angle
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]//Auto 3
+];
+console.log(classes[0].length);
 var game = {
   width: 8192,
   height: 6144,
@@ -87,7 +128,10 @@ var cam = {
     if(naves[0].y + naves[0].h > this.bottomEdge()){
       this.y = naves[0].y + naves[0].h - (1 - this.port) * this.h;
     }this.x = this.x | 0; this.y = this.y | 0;
-
+    if(naves[meuID].classe == 38 && naves[meuID].skill){
+      this.x += this.w*0.4*Math.cos(naves[meuID].rot);
+      this.y += this.h*0.4*Math.sin(naves[meuID].rot);
+    }
     if(this.x < 0){ // Limites da câmera
       this.x = 0;
     }
@@ -118,7 +162,7 @@ for(let i = 0; i < 0; i++)
   naves.push(new Enemy("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 32), bases[0].y + Math.floor(Math.random() * bases[0].h - 32), 64, 64, 3, 5, 0, 0, naves.length));
 for(let i = 0; i < 0; i++)
   naves.push(new Enemy("nave.png", spriteX, bases[1].x + Math.floor(Math.random() * bases[1].w - 32), bases[1].y + Math.floor(Math.random() * bases[1].h - 32), 64, 64, 3, 5, 1, 0, naves.length));
-for(let i = 0; i < 0; i++)
+for(let i = 0; i < 64; i++)
   npcs.push(new Npc("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 0));
 for(let i = 0; i < 0; i++)
   npcs.push(new Npc("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 1));
@@ -204,6 +248,9 @@ var keyPressed = function() {
   if ((game.keys && game.keys[75])) { // Tiro
      levelUp = 1;
   }
+  if ((game.keys && game.keys[69])) { // Skill
+     naves[0].skill = 1;
+  }
   if ((game.keys && game.keys[79])) { // Morre
      naves[0].hp = 0;
   }
@@ -231,6 +278,9 @@ var keyReleased = function() {
       naves[0].exp = naves[0].nextLv;
     }
   }
+  if (!(game.keys && game.keys[69])) { // Skill
+    naves[0].skill = 0;
+  }
   if(game.mouseClick.button == 1 && game.mouseClick.type == "mouseup"){
     naves[0].tiro = 0;
     if(hud.click){
@@ -244,8 +294,9 @@ var keyReleased = function() {
 var collision = function(r1, r2){
   vezes++;
   let dist = Math.sqrt(Math.pow(r2.x + r2.w/2 - r1.x - r1.w / 2, 2) + Math.pow(r2.y + r2.h/2 - r1.y - r1.h / 2, 2));
-  if(dist < r1.w / 2 + r2.w / 2)
+  if(dist < r1.w / 2 + r2.w / 2){
     return true;
+  }
   else
     return false;
 };
@@ -287,6 +338,7 @@ function debug(){
   text += "<br><br>Poder = " + naves[x].clStats[5] * naves[x].clStats[4] / naves[x].clStats[6];
   text += "<br><br>Exp: (" + naves[x].exp + "," + naves[x].nextLv + ") => " + naves[x].lv;
   text += "<br><br>Reload: (" + naves[x].reload + " / " + naves[x].reloadMax + ")";
+  text += "<br><br>Reload: (" + naves[x].reloadAuto + " / " + naves[x].reloadMax + ")";
   count++;
   if((new Date().getTime() - timestamp) >= 1000){
     timestamp = new Date().getTime();
@@ -314,16 +366,3 @@ function debug(){
     score += maior + ": " + atual + "<br>";
   }document.getElementById("score").innerHTML = score;
 }
-
-/*
-Classes:
-Os Smashers causam mais dano girando
-A Bala que explode
-O Teleguiado
-O Escudador
-O Teleportador
-O Healer
-O Excalibur
-O Bardo
-O Engenheiro
-*/

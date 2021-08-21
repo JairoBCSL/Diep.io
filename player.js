@@ -19,8 +19,12 @@ class Player extends Nave{
     }
   }
   aim(){
-    let difX = (game.mouseX + cam.x) - (this.x + this.w / 2);
-    let difY = (game.mouseY + cam.y) - (this.y + this.h / 2);
-    this.rot = Math.atan2(difY, difX);
+    if(this.classe == 17 || this.classe == 29){ // Autos
+        
+    }else{
+      let difX = (game.mouseX + cam.x) - (this.x + this.w / 2);
+      let difY = (game.mouseY + cam.y) - (this.y + this.h / 2);
+      this.rot = Math.atan2(difY, difX);
+    }
   }
 }

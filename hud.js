@@ -9,7 +9,7 @@ class Hud{
       this.stats.push(new Stat(i, this.msgs[i], this.colors[i]));
     for(let i = 0; i < 8; i++)
       this.botoesStats.push(new BotaoStats(i, this.colors[i]));
-    for(let i = 0; i < 21; i++)
+    for(let i = 0; i < classes[0].length; i++)
       this.botoesClasses.push(new BotaoClasses("classes.png", i));
     this.click = 1;
   }
