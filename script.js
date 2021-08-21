@@ -1,8 +1,5 @@
 /*
 Só procurar se tiver na tela (cam.x<x<cam.w+cam.w)
-Skimmer
-Rocketeer
-Annihinator
 Smashers
 Triangles
 Recoil

@@ -5,8 +5,10 @@ class Cano{
     this.x = 0; this.y = 0; this.w = 0; this.h = 0; this.n = n;
     this.xSRC = 0; this.ySRC = 0; this.wSRC = 0; this.hSRC = 0;
     this.classe = classe; this.team = team; this.id = id; this.rot = 0;
-    this.autos = 0; this.trappers = 0; this.overseers = 0;
-    if(classe == 13 || (classe == 18 && this.n) || classe == 31 || classe == 32 || classe == 34 || (classe == 35 && n > 0) || classe == 36)
+    this.foguetes = 0; this.autos = 0; this.trappers = 0; this.overseers = 0;
+    if(classe == 20 || classe == 21)
+      this.foguetes = 1;
+    else if(classe == 13 || (classe == 18 && this.n) || classe == 31 || classe == 32 || classe == 34 || (classe == 35 && n > 0) || classe == 36)
       this.overseers = 1;
     else if(classe == 17 || (classe == 22 && this.n == 4) || classe == 29 || (classe == 43 && n > 0))
       this.autos = 1;
@@ -579,7 +581,10 @@ class Cano{
     let y = (this.w>this.h)?(this.y+this.w/2-this.h/2):(this.y+this.h/2-this.w/2);
     let w = (this.w>this.h)?this.h:this.w;
     let h = (this.w>this.h)?this.h:this.w;
-    if(this.overseers){
+    if(this.foguetes){
+      balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
+    }
+    else if(this.overseers){
       drones.push(new Drone("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, this.team, this.classe, this.id));
     }
     else if(this.autos){
@@ -605,10 +610,11 @@ class Cano{
       if(Math.abs(angulo-this.rot) < Math.PI / 2 || Math.abs(angulo-this.rot) > Math.PI * 3 / 2){
         balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, angulo, naves[this.id].bulletPen, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
       }
-    }//Trappers
+    }
     else if(this.trapper){
       balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen*4, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
-    }//Resto
+    }
+    //Resto
     else{
       console.log(this.n+" Resto");
       if(this.classe == 37 && this.n == 1)

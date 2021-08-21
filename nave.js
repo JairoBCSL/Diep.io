@@ -32,7 +32,6 @@ class Nave{
     this.score = 0; this.lv = 1; this.exp = 10000000; this.expTotal = 0; this.nextLv = this.lv * 100;
     this.up = 0; this.down = 0; this.left = 0; this.right = 0; this.tiro = 0;
 
-    this.waitCount = 0; this.frameCount = 0; this.estado = 0; this.estado_a = 0;
     this.rot = 0;
     this.canos = [];
     //this.changeClass(0);
@@ -972,11 +971,12 @@ class Nave{
       }
       case 19:{ // Annihilator
         this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
-        this.clStats[3] = 3; this.clStats[4] = 240; this.clStats[5] = 16;
+        this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 64;
         this.updateStats();
         this.canos = [];
         this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
         break; // 16 * 240 / 120 = 32
       }
       case 20:{ // Skimmer
