@@ -1,43 +1,34 @@
 class Nave{
-  constructor(spriteSRC, spriteCFG, x, y, w, h, spdMax, jumpHeight, team, classe, id){
-    this.sprite = new Image();
-    this.sprite.src = spriteSRC;
-    this.spriteCFG = spriteCFG;
-    this.x = x; this.y = y; this.w = w; this.h = h; // Posição
+  constructor(x, y, r, spdMax, team, classe, id){
+    this.x = x; this.y = y; this.w = r; this.h = r; this.peso = r * r; // Posição
     this.wA = this.w; this.hA = this.h;
-    this.drones = 0; this.id = id; this.qualCano = 0;
+    this.drones = 0; this.id = id; this.qualCano = 0; this.dronesMax = 0;
     this.xSRC = 0; this.ySRC = 128 * team; this.wSRC = 128; this.hSRC = 128; // Sprite
     this.hp = 120; this.hpMax = 120; this.hpRegen = 1; this.bodyDmg = 4; // Stats
     this.bulletSpd = 4; this.bulletPen = 60; this.bulletDmg = 9;
     this.bulletSize = 24; this.team = team; this.spdMax = spdMax;
 
-    if(this.classe == 12 || this.classe == 34 || this.classe == 37 || this.classe == 38 || this.classe == 39)
-      this.invisibleSkill = 1;
-    else
-      this.invisibleSkill = 0;
-
     this.ptStats = []; this.pt = 0; this.ptStats[0] = 0; this.ptStats[1] = 0; // Pontos
     this.ptStats[2] = 0; this.ptStats[3] = 0; this.ptStats[4] = 0;
     this.ptStats[5] = 0; this.ptStats[6] = 0; this.ptStats[7] = 0;
 
-    this.clStats = []; this.classe = classe; this.clStats[0] = 1; this.clStats[1] = 120; // Classe
+    this.clStats = []; this.classe = classe; this.clStats[0] = 0.1; this.clStats[1] = 120; // Classe
     this.clStats[2] = 4; this.clStats[3] = 4; this.clStats[4] = 60;
     this.clStats[5] = 4; this.clStats[6] = 60; this.clStats[7] = 2;
     this.clBulletSize = 32; this.ptClasse = 0;
 
-    this.dirX = 1; this.dirY = 1; this.orientX = 1; this.orientY = 1; this.spd = 0; this.jumpSpeed = 0;
-    this.jumpHeight = jumpHeight; this.reload = 0; this.reloadMax = 60; this.reloadAuto = 0;
+    this.dirX = 1; this.dirY = 1; this.orientX = 1; this.orientY = 1; this.spd = 0;
+    this.reload = 0; this.reloadMax = 60; this.reloadAuto = 0;
     this.batalha = 0; this.procura = 1; this.regenCooldown = 0; this.regenCooldownMax = 300;
     this.invisible = 120; this.invisibleMax = 120; this.skill = 0;
     this.score = 0; this.lv = 1; this.exp = 10000000; this.expTotal = 0; this.nextLv = this.lv * 100;
     this.up = 0; this.down = 0; this.left = 0; this.right = 0; this.tiro = 0;
 
-    this.rot = 0;
+    this.rot = 0; this.moveRot = 0;
     this.canos = [];
-    //this.changeClass(0);
     this.levelUp();
     this.updateStats();
-    this.canos.push(new Cano("canos.png",0,classe,this.team, id));
+    this.canos.push(new Cano(0,classe,team, id));
   }
   fisica() {
     this.levelUp();
@@ -66,10 +57,12 @@ class Nave{
             this.x -= Math.cos(angulo);
           if(this.y - Math.sin(angulo) < game.height && this.y - Math.sin(angulo) > 0)
             this.y -= Math.sin(angulo);
-          if(naves[i].x + Math.cos(angulo) < game.width && naves[i].x + Math.cos(angulo) > 0)
-            naves[i].x += Math.cos(angulo);
-          if(naves[i].y + Math.sin(angulo) < game.height && naves[i].y + Math.sin(angulo) > 0)
-            naves[i].y += Math.sin(angulo);
+          if(!naves[i].pesada){
+            if(naves[i].x + Math.cos(angulo) < game.width && naves[i].x + Math.cos(angulo) > 0)
+              naves[i].x += Math.cos(angulo);
+            if(naves[i].y + Math.sin(angulo) < game.height && naves[i].y + Math.sin(angulo) > 0)
+              naves[i].y += Math.sin(angulo);
+          }
           if(this.team != naves[i].team){
             naves[i].hp -= this.bodyDmg;
             if(naves[i].hp <= 0){
@@ -78,6 +71,7 @@ class Nave{
               this.expTotal += 1000 + naves[i].expTotal;
             }
             this.hp -= naves[i].bodyDmg;
+            naves[i].regenCooldown = naves[i].regenCooldownMax;
             this.regenCooldown = this.regenCooldownMax;
           }
         }
@@ -100,6 +94,7 @@ class Nave{
             drone.hp -= this.bodyDmg;
             this.hp -= drone.bodyDmg;
           }
+          this.regenCooldown = this.regenCooldownMax;
         }
       }
     }
@@ -131,32 +126,16 @@ class Nave{
     }
   }
   move(){
-    //console.log("Invisble: "+this.invisible);
-    //console.log("Skill: "+this.reloadAuto);
-    if(this.classe == 17 || this.classe == 29)
+    if(this.autos)
       this.rot += 0.0025;
+    if(this.smasher)
+      this.rot += 0.01;
     this.dirX = this.right - this.left; // Andando
     this.dirY = this.down - this.up;
     if(this.dirX || this.dirY){
-      if(this.invisibleSkill && this.invisible < 120) // Stalker
+      if(this.invisibleSkill && this.invisible < 120) // Invisíveis
         this.invisible+=5;
-      if(this.dirX && this.dirY){
-        this.orientX = Math.sqrt(2) * this.dirX / 2;
-        this.orientY = Math.sqrt(2) * this.dirY / 2;
-      }
-      else if(this.dirX && !this.dirY){
-        this.orientX = this.dirX;
-        this.orientY = 0;
-      }
-      else if(!this.dirX && this.dirY){
-        this.orientX = 0;
-        this.orientY = this.dirY;
-      }
-      else{
-        this.orientX = 0;
-        this.orientY = 0;
-      }
-
+      this.moveRot = Math.atan2(this.dirY,this.dirX);
       if(this.spd < this.spdMax){
         this.spd+=1/8;
         // Começando a andar
@@ -168,26 +147,24 @@ class Nave{
           this.spd-=1/8;
         this.andando = true;
       }
-    }else{
+    }
+    else{
       if(this.invisibleSkill && this.invisible > 0) // Stalker
         this.invisible--;
       if(this.spd > 0){
         this.spd-=1/8;
         // Parando de andar
-        this.andando = true;
       }else{
-        this.dirX = 0;
-        this.dirY = 0;
-        this.andando = false;
         // Parado
       }
-    }let foi = 0;
+    }
+    let foi = 0;
     for(let s = this.spd; s > 0; s--){
-      if(this.x + this.w + s * this.orientX < game.width && this.x + s * this.orientX > 0){
-        this.x += s * this.orientX;
+      if(this.x + this.w + s * Math.cos(this.moveRot) < game.width && this.x + s * Math.cos(this.moveRot) > 0){
+        this.x += s * Math.cos(this.moveRot);
         foi++;
-      }if(this.y + this.h + s * this.orientY < game.height && this.y + s * this.orientY > 0){
-        this.y += s * this.orientY;
+      }if(this.y + this.h + s * Math.sin(this.moveRot) < game.height && this.y + s * Math.sin(this.moveRot) > 0){
+        this.y += s * Math.sin(this.moveRot);
         foi++;
       }if(foi)
         break;
@@ -670,7 +647,6 @@ class Nave{
         break;
       }
       case 40:{ // Charger
-        console.log("Carga: "+this.charge);
         if(this.charge < this.chargeMax)
           this.charge++;
         if(this.reload > 0)
@@ -737,6 +713,74 @@ class Nave{
         }
         break;
       }
+      case 45:{ // Grinder
+        this.dRot = Math.abs(this.rotA - this.rot);
+        this.rotA = this.rot;
+        if(this.dRot > 1)
+          this.dRot = 1;
+        this.bodyDmg = (1 + this.dRot) * this.clStats[2]*(1+this.lv/45)*(1+this.ptStats[0]/7);
+        break;
+      }
+      case 46:{ // Auto Smasher
+        if(this.reloadAuto > 0)
+          this.reloadAuto--;
+        else if(this.tiro){
+          this.canos[1].shoot();
+          this.reloadAuto = this.reloadMax;
+        }
+        break;
+      }
+      case 47:{ // Landmine
+        break;
+      }
+      case 48:{ // Shield Smasher
+        if(this.reload > 0)
+          this.reload--;
+        else if(this.tiro){
+          this.canos[1].shoot();
+          this.reload = this.reloadMax;
+        }
+        break;
+      }
+      case 49:{ // Oversmasher
+        if(this.reload > 0)
+          this.reload--;
+        else if(this.drones < 2){
+          let hover = 0;
+          this.canos[0].shoot();
+          for(let i = 0; i < drones.length; i++)
+            if(drones[i].id == naves.indexOf(this))
+              drones[i].hover = Math.PI * 2 / this.drones * i;
+          this.reload = this.reloadMax;
+        }
+        break;
+      }
+      case 50:{ // Booster
+        if(this.reload > 0)
+          this.reload--;
+        else if(this.tiro){
+          this.canos[0].shoot();
+          this.canos[1].shoot();
+          this.canos[2].shoot();
+          this.canos[3].shoot();
+          this.canos[4].shoot();
+          this.reload = this.reloadMax;
+        }
+        break;
+      }
+      case 51:{ // Warrior
+        if(this.reload > 0)
+          this.reload--;
+        else if(this.tiro){
+          this.canos[0].shoot();
+          this.canos[1].shoot();
+          this.canos[2].shoot();
+          this.canos[3].shoot();
+          this.canos[4].shoot();
+          this.reload = this.reloadMax;
+        }
+        break;
+      }
     }
 
   }
@@ -753,8 +797,9 @@ class Nave{
     }
     this.w = this.wA * (1 + this.lv / 90);
     this.h = this.hA * (1 + this.lv / 90);
+    this.peso = this.w * this.h;
     this.hpRegen = this.clStats[0]*(1+this.lv/45)*(1+this.ptStats[0]/7);
-    this.regenCooldownMax = 300 / this.stats[0];
+    this.regenCooldownMax = 300 / this.hpRegen;
     this.hpMax = this.clStats[1]*(1+this.lv/45)*(1+this.ptStats[1]/7);
     this.hp = this.hpMax;
     this.bodyDmg = this.clStats[2]*(1+this.lv/45)*(1+this.ptStats[0]/7);
@@ -771,520 +816,609 @@ class Nave{
   changeClass(classe){
     this.reload = 0; this.qualCano = 0; this.invisible = this.invisibleMax;
     this.invisibleSkill = 0; this.charge = 0; this.chargeMax = 0;
-    this.xSRC = 0;
+    this.smasher = 0; this.autos = 0; this.invisibleSkill = 0; this.grinder = 0;
+    this.xSRC = 0; this.dronesMax = 0;
     for(let i = 0; i < drones.length; i++)
       if(drones[i].id == this.id)
         drones[i].hp = 0;
     switch(classe){
       case 0:{ // Normal -> MachineGun / Twin / Sniper / Flank / Smasher
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 60; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 4 * 60 / 60 = 4
       }
       case 1:{ // MachineGun -> Destroyer / Gunner / Rifle
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 30; this.clStats[7] = 2; this.clBulletSize = 28;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 4 * 60 / 30 = 8
       }
       case 2:{ // Twin -> Triple / Quad / Twin Flank
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 30; this.clStats[7] = 2; this.clBulletSize = 28;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 4 * 60 / 60 + 4 * 60 / 60 = 4 + 4 = 8
       }
       case 3:{ // Sniper -> Stalker / Overseer / Hunter / Trapper
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 6; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 8 * 120 / 120 = 8
       }
       case 4:{ // Flank -> Tri-Angle / Quad / Twin Flank / Auto 3
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 6;
         this.clStats[6] = 60; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 2 * 6 * 60 / 60 = 12
       }
       case 5:{ // Smasher
-        this.clStats[0] = 1; this.clStats[1] = 240; this.clStats[2] = 8;
+        this.clStats[0] = 0.1; this.clStats[1] = 240; this.clStats[2] = 16;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.smasher = 1;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        break; // 8 * 120 / 120 = 8
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        break; // 16 * 120 / 120 = 16
       }
       case 6:{ // Destroyer ->
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 64;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 16 * 120 / 120 = 16
       }
       case 7:{ // Gunner
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 15; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
         break; // 4 * 60 / 15 = 16
       }
       case 8:{ // Rifle
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 30; this.clStats[7] = 2; this.clBulletSize = 28;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 8 * 120 / 30 = 32
       }
       case 9:{ // Triple Shot
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4; //*3
         this.clStats[6] = 45; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 3 * 4 * 60 / 45 = 16
       }
       case 10:{ // Quad Tank
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 6;
         this.clStats[6] = 60; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
         break; // 4 * 6 * 60 / 60 = 24
       }
       case 11:{ // Twin Flank
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 4;
         this.clStats[6] = 30; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
         break; // 4 * 120 / 30 = 16
       }
       case 12:{ // Stalker
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 6; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.invisibleSkill = 1;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 16 * 120 / 120 = 16
       }
       case 13:{ // Overseer
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.dronesMax = 8
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 2 * 8 * 120 / 120 = 16
       }
       case 14:{ // Hunter
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 6; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 16 * 120 / 120 = 16
       }
       case 15:{ // Trapper
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 16 * 120 / 120 = 16
       }
       case 16:{ // Tri-Angle
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4; //*3
         this.clStats[6] = 45; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 3 * 4 * 60 / 45 = 16
       }
       case 17:{ // Auto 3
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 8;
         this.clStats[6] = 60; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.autos = 1;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 3 * 8 * 60 / 60 = 24
       }
       case 18:{ // Hybrid
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 64;
+        this.dronesMax = 2;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 2 * 16 * 120 / 120 = 32
       }
       case 19:{ // Annihilator
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 64;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 16 * 240 / 120 = 32
       }
       case 20:{ // Skimmer
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 32;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 64;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 32 * 120 / 120 = 32
       }
       case 21:{ // Rocketeer
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 32;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 64;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 32 * 120 / 120 = 32
       }
       case 22:{ // Auto Gunner
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 15; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",4,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
         break; // 4 * 60 / 15 + 4 * 60 / 15 = 16 + 16 = 32
       }
       case 23:{ // Gunner Trapper
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 15; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 4 * 60 / 15 + 4 * 60 / 15 = 16 + 16 = 32
       }
       case 24:{ // Streamer
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 6; this.clStats[4] = 60; this.clStats[5] = 8;
         this.clStats[6] = 15; this.clStats[7] = 2; this.clBulletSize = 8;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 8 * 60 / 15 = 32
       }
       case 25:{ // Triplet
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 6;
         this.clStats[6] = 15;/*30*/ this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 6 * 60 / 30 + 2 * 6 * 60 / 30 = 12 + 24 = 36
       }
       case 26:{ // PentaShot
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 30;/*30*/ this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",4,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 5 * 4 * 60 / 30 = 5 * 8 = 40
       }
       case 27:{ // SpreadShot
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 3;
         this.clStats[6] = 30;/*30*/ this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",10,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",9,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",8,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",7,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",4,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",6,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",5,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(10,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(9,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(8,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(7,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(6,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(5,classe,this.team, naves.indexOf(this)));
         break; // 11 * 3 * 60 / 30 = 11 * 6 = 66
       }
       case 28:{ // Octa Tank
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 6;
         this.clStats[6] = 30; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",5,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",7,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",4,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",6,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(5,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(7,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(6,classe,this.team, naves.indexOf(this)));
         break; // 4 * 6 * 60 / 60 + 4 * 6 * 60 / 60 = 24 + 24 = 48
       }
       case 29:{ // Auto 5
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 8;
         this.clStats[6] = 60; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.autos = 1;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",4,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
         break; // 5 * 8 * 60 / 60 = 40
       }
       case 30:{ // Twin Flank
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 4;
         this.clStats[6] = 30; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",4,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",5,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(5,classe,this.team, naves.indexOf(this)));
         break; // 6 * 4 * 120 / 60 = 48
       }
       case 31:{ // Battleship
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 4;
         this.clStats[6] = 30; this.clStats[7] = 2; this.clBulletSize = 16;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
         break; // 4 * 4 * 60 / 30 = 4 * 32
       }
       case 32:{ // Overlord
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.dronesMax = 8;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
         break; // 4 * 8 * 120 / 120 = 32
       }
       case 33:{ // Necromancer
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.dronesMax = 32;
         this.xSRC = 128;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 8 * 120 / 120 = 8
       }
       case 34:{ // Manager
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.dronesMax = 8;
         this.invisibleSkill = 1;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 8 * 120 / 120 = 16
       }
       case 35:{ // Overtrapper
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.dronesMax = 4;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 2 * 8 * 120 / 120 + 16 * 120 / 120 = 16 + 16
       }
       case 36:{ // Factory
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 4;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.dronesMax = 8;
         this.xSRC = 128;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 8 * 4 * 120 / 120 = 64
       }
       case 37:{ // Assassin
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 8; this.clStats[4] = 120; this.clStats[5] = 32;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.invisibleSkill = 1;
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 32 * 120 / 120 = 32
       }
       case 38:{ // Watcher
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 8; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.invisibleSkill = 1;
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 16 * 120 / 120 = 16
       }
       case 39:{ // Predator
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 8; this.clStats[4] = 120; this.clStats[5] = 32;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.invisibleSkill = 1;
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 32 * 120 / 120 = 32
       }
       case 40:{ // Charger
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 8; this.clStats[4] = 120; this.clStats[5] = 32;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.chargeMax = 300;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 32 * 120 / 120 = 32
       }
       case 41:{ // Ranger
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 6; this.clStats[4] = 120; this.clStats[5] = 32;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.invisibleSkill = 1;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
         break; // 32 * 120 / 120 = 32
       }
       case 42:{ // Tri-Trapper
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 3 * 16 * 120 / 120 = 48
       }
       case 43:{ // Auto Trapper
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
         this.clStats[6] = 80; this.clStats[7] = 2; this.clBulletSize = 32;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",1,classe,this.team, naves.indexOf(this)));
-        this.canos.push(new Cano("canos.png",2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
         break; // 3 * 16 * 120 / 80 = 72
       }
       case 44:{ // Big Trapper
-        this.clStats[0] = 1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
         this.clStats[3] = 3; this.clStats[4] = 240; this.clStats[5] = 32;
         this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 64;
         this.updateStats();
         this.canos = [];
-        this.canos.push(new Cano("canos.png",0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
         break; // 32 * 240 / 120 = 64
       }
+      case 45:{ // Grinder
+        this.clStats[0] = 0.1; this.clStats[1] = 240; this.clStats[2] = 16;
+        this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
+        this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.grinder = 1;
+        this.dRot = 0; this.rotA;
+        this.updateStats();
+        this.canos = [];
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        break; // 16 * 120 / 120 = 16 * (rot)
+      }
+      case 46:{ // Auto Smasher
+        this.clStats[0] = 0.1; this.clStats[1] = 240; this.clStats[2] = 16;
+        this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
+        this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.smasher = 1;
+        this.updateStats();
+        this.canos = [];
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        break; // 16 * 120 / 120 + 16 * 120 / 120 = 16
+      }
+      case 47:{ // Landmine
+        this.clStats[0] = 0.1; this.clStats[1] = 240; this.clStats[2] = 16;
+        this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 8;
+        this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.invisibleSkill = 1;
+        this.smasher = 1;
+        this.updateStats();
+        this.canos = [];
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        break; // 16 * 120 / 120 = 16
+      }
+      case 48:{ // Shield Smasher
+        this.clStats[0] = 0.1; this.clStats[1] = 240; this.clStats[2] = 16;
+        this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
+        this.clStats[6] = 600; this.clStats[7] = 2; this.clBulletSize = 128;
+        this.smasher = 1;
+        this.updateStats();
+        this.canos = [];
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        break; // 16 * 120 / 120 + 16 * 120 / 600 = 16 + 16/5 = 19.2
+      }
+      case 49:{ // Oversmasher
+        this.clStats[0] = 0.1; this.clStats[1] = 240; this.clStats[2] = 16;
+        this.clStats[3] = 3; this.clStats[4] = 120; this.clStats[5] = 16;
+        this.clStats[6] = 120; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.dronesMax = 2;
+        this.smasher = 1;
+        this.updateStats();
+        this.canos = [];
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        break; // 16 * 120 / 120 + 16 * 120 / 120 = 16 + 16 = 32
+      }
+      case 50:{ // Booster
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 8; //*5
+        this.clStats[6] = 45; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.updateStats();
+        this.canos = [];
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
+        break; // 5 * 8 * 60 / 45 = 40
+      }
+      case 51:{ // Warrior
+        this.clStats[0] = 0.1; this.clStats[1] = 120; this.clStats[2] = 4;
+        this.clStats[3] = 3; this.clStats[4] = 60; this.clStats[5] = 8; //*5
+        this.clStats[6] = 45; this.clStats[7] = 2; this.clBulletSize = 32;
+        this.updateStats();
+        this.canos = [];
+        this.canos.push(new Cano(0,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(1,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(2,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(3,classe,this.team, naves.indexOf(this)));
+        this.canos.push(new Cano(4,classe,this.team, naves.indexOf(this)));
+        break; // 5 * 8 * 60 / 45 = 40
+      }
     }
-    if(!naves.indexOf(this))
-      //.log("Tem "+this.ptClasse+" pontos");
-    this.ptClasse -= classes[this.classe][classe];
-    if(!naves.indexOf(this)){
-      //console.log("Tirou "+classes[this.classe][classe]+" pontos");
-      //console.log("Agora tem "+this.ptClasse+" pontos");
-      console.log("E passou da classe "+this.classe+" para a classe "+classe);
-    }
+    if(classe)
+      this.ptClasse -= classes[this.classe][classe];
+    console.log("E passou da classe "+this.classe+" para a classe "+classe);
     this.classe = classe;
     this.updateStats();
   }
   levelUp(){
-    let x = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1];
+    let x = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1];
     if(this.lv < 45){
       while(this.exp >= this.nextLv && this.lv < 45){
         this.pt += x[this.lv];
@@ -1309,13 +1443,13 @@ class Nave{
       if(this.invisibleSkill)
         ctx.globalAlpha = this.invisible / this.invisibleMax;
       for(let i = 0; i < this.canos.length; i++)
-        if(!(this.classe == 22 && i == 4) && !(this.classe == 43 && i > 0))
+        if(!(this.classe == 22 && i == 4) && !(this.classe == 43 && i > 0) && !(this.classe == 46 && i == 1))
           this.canos[i].draw();
       ctx.save();
       ctx.translate(+this.x + this.w / 2, + this.y + this.h / 2);
       ctx.rotate(this.rot);
       ctx.translate(-this.x - this.w / 2, - this.y - this.h / 2);
-      ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
+      ctx.drawImage(imagens.naves, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
       //ctx.strokeRect(this.x-this.w/2, this.y-this.h/2, this.w, this.h);
       //ctx.strokeRect(this.x+this.w/2, this.y+this.h/2, this.w, this.h);
       //ctx.strokeRect(this.x, this.y, this.w, this.h);
@@ -1325,7 +1459,9 @@ class Nave{
       if(this.classe == 43){
         this.canos[1].draw();
         this.canos[2].draw();
-      }
+      }if(this.classe == 46)
+        this.canos[1].draw();
+
       this.stats();
       if(this.invisibleSkill)
         ctx.globalAlpha = 1;
@@ -1357,7 +1493,7 @@ class Nave{
       this.ptStats[5] = 0;
       this.ptStats[6] = 0;
       this.ptStats[7] = 0;
-      this.ptClasse = 4;
+      this.ptClasse = 0;
       this.changeClass(0);
       this.hpRegen = this.clStats[0];
       this.hpMax = this.clStats[1];
@@ -1368,14 +1504,16 @@ class Nave{
       this.reloadMax = this.clStats[6];
       this.spdMax = this.clStats[7];
 
-      let x = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1];
+      let x = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1];
 
       for(let i = 0; i < Math.floor(this.lv / 2); i++)
         this.expTotal += 100 * i * i;
       this.exp = this.expTotal;
       this.nextLv = 0;
       this.lv = 0;
-
+      for(let i = 0; i < drones.length; i++)
+        if(naves.indexOf(this) == drones[i].id)
+          drones[i].hp = 0;
       this.x = bases[this.team].x + Math.floor(Math.random() * bases[this.team].w - 32);
       this.y = bases[this.team].y + Math.floor(Math.random() * bases[this.team].h - 32);
     }

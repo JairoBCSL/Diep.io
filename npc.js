@@ -1,20 +1,20 @@
 class Npc{
-  constructor(spriteSRC, spriteCFG, x, y, classe){
-    this.sprite = new Image();
-    this.sprite.src = spriteSRC;
-    this.spriteCFG = spriteCFG;
+  constructor(x, y, classe){
     this.x = x; this.y = y; // Posição
     this.xSRC = 0; this.ySRC = 0; this.wSRC = 64; this.hSRC = 64; this.rot = 0; // Sprite
     this.hp = 120; this.hpMax = 120; this.classe = classe; this.bodyDmg = 4; // Stats
     if(this.classe == 0){
       this.hp = 100; this.hpMax = 120; this.bodyDmg = 1;
       this.w = 32; this.h = 32; this.expTotal = 100;
+      this.peso = 32 * 32;
     }else if(this.classe == 1){
       this.hp = 200; this.hpMax = 240; this.bodyDmg = 2;
       this.w = 48; this.h = 48; this.expTotal = 400;
+      this.peso = 48 * 48;
     }else if(this.classe == 2){
       this.hp = 400; this.hpMax = 480; this.bodyDmg = 4;
       this.w = 64; this.h = 64; this.expTotal = 1600;
+      this.peso = 64 * 64;
     }
   }
   fisica() {

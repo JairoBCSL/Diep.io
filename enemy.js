@@ -33,17 +33,16 @@ class Enemy extends Nave{
       }
     }*/
     // Tem alguém perto?
-    if(pertos){
+    if(pertos || true){
       // Ataca
-      if(this.classe == 17 || this.classe == 29) // Autos
-        this.rot = Math.atan2(naves[maisPerto].y+naves[maisPerto].h/2 - this.y - this.h/2, naves[maisPerto].x+naves[maisPerto].w-this.x-this.w);
+      this.rot = Math.atan2(naves[maisPerto].y+naves[maisPerto].h/2 - this.y - this.h/2, naves[maisPerto].x+naves[maisPerto].w-this.x-this.w);
       this.tiro = 1;
       let modulo = Math.sqrt( Math.pow(this.x+this.w-naves[maisPerto].x-naves[maisPerto].w, 2) + Math.pow(this.y+this.h-naves[maisPerto].y-naves[maisPerto].h, 2) );
       let angulo = Math.atan2(this.y+this.h-naves[maisPerto].y-naves[maisPerto].h, naves[maisPerto].x+naves[maisPerto].w-this.x-this.w);
-      let vai;
+      let vai; perigo = -9;
       if(perigo >= 3 * this.batalha)
         vai = -1;
-      else if(perigo < 3 * this.batalha && modulo > this.w * 20)
+      else if(perigo < 3 * this.batalha && modulo > this.w * 5)
         vai = +1;
       else
         vai = 0;

@@ -1,18 +1,16 @@
 class Cano{
-  constructor(spriteSRC,n,classe,team,id){
-    this.sprite = new Image();
-    this.sprite.src = spriteSRC;
+  constructor(n,classe,team,id){
     this.x = 0; this.y = 0; this.w = 0; this.h = 0; this.n = n;
     this.xSRC = 0; this.ySRC = 0; this.wSRC = 0; this.hSRC = 0;
     this.classe = classe; this.team = team; this.id = id; this.rot = 0;
     this.foguetes = 0; this.autos = 0; this.trappers = 0; this.overseers = 0;
     if(classe == 20 || classe == 21)
       this.foguetes = 1;
-    else if(classe == 13 || (classe == 18 && this.n) || classe == 31 || classe == 32 || classe == 34 || (classe == 35 && n > 0) || classe == 36)
+    else if(classe == 13 || (classe == 18 && n) || classe == 31 || classe == 32 || classe == 34 || (classe == 35 && n > 0) || classe == 36 || (classe == 49 && n == 1) || classe == 60 || classe == 64)
       this.overseers = 1;
-    else if(classe == 17 || (classe == 22 && this.n == 4) || classe == 29 || (classe == 43 && n > 0))
+    else if(classe == 17 || (classe == 22 && n == 4) || classe == 29 || (classe == 43 && n > 0))
       this.autos = 1;
-    else if(classe == 15 || (classe == 23 && this.n == 2) || classe == 35 || classe == 42 || (classe == 43 && n == 0) || classe == 44)
+    else if(classe == 15 || (classe == 23 && n == 2) || classe == 35 || classe == 42 || (classe == 43 && n == 0) || classe == 44 || classe == 63)
       this.trappers = 1;
   }
   update(){
@@ -574,6 +572,176 @@ class Cano{
         this.xSRC = 1530; this.ySRC = 0; this.wSRC = 75; this.hSRC = 132;
         break;
       }
+      case 45:{ // Grinder
+        this.x = naves[this.id].x + naves[this.id].w * -21 / 128 + naves[this.id].w * 0 / 128 * Math.cos(naves[this.id].rot * (1 - 2 * this.n));
+        this.y = naves[this.id].y + naves[this.id].h * -21 / 128 + naves[this.id].w * 0 / 128 * Math.sin(naves[this.id].rot * (1 - 2 * this.n));
+        this.w = naves[this.id].w * 170 / 128, this.h = naves[this.id].h * 170 / 128; this.rot = naves[this.id].rot * (1 - 2 * this.n);
+        this.xSRC = 1606; this.ySRC = 0; this.wSRC = 170; this.hSRC = 170;
+        break;
+      }
+      case 46:{ // Auto Smasher
+        if(this.n == 0){
+          this.x = naves[this.id].x + naves[this.id].w * -1 / 128 + naves[this.id].w * 0 / 128 * Math.cos(naves[this.id].rot);
+          this.y = naves[this.id].y + naves[this.id].h * -11 / 128 + naves[this.id].w * 0 / 128 * Math.sin(naves[this.id].rot);
+          this.w = naves[this.id].w * 130 / 128, this.h = naves[this.id].h * 150 / 128; this.rot = naves[this.id].rot;
+          this.xSRC = 349; this.ySRC = 0; this.wSRC = 130; this.hSRC = 150;
+        }else{
+          this.x = naves[this.id].x + naves[this.id].w * 38 / 256;
+          this.y = naves[this.id].y + naves[this.id].h * 38 / 256;
+          this.w = naves[this.id].w * 90 / 128; this.h = naves[this.id].h * 90 / 128; this.rot = naves[this.id].rot;
+          this.xSRC = 1026; this.ySRC = 0; this.wSRC = 90; this.hSRC = 90;
+          if(naves[this.id].tiro){
+            let angulo = Math.atan2(game.mouseY + cam.y - this.y - this.h / 2, game.mouseX + cam.x - this.x - this.w / 2);
+            if(Math.abs(angulo-this.rot) < Math.PI / 2 || Math.abs(angulo-this.rot) > Math.PI * 3 / 2){
+              this.rot = angulo;
+            }
+          }
+        }
+        break;
+      }
+      case 47:{ // Landmine
+        this.x = naves[this.id].x + naves[this.id].w * -21 / 128 + naves[this.id].w * 0 / 128 * Math.cos(naves[this.id].rot);
+        this.y = naves[this.id].y + naves[this.id].h * -21 / 128 + naves[this.id].w * 0 / 128 * Math.sin(naves[this.id].rot);
+        this.w = naves[this.id].w * 170 / 128, this.h = naves[this.id].h * 170 / 128; this.rot = naves[this.id].rot;
+        this.xSRC = 1778; this.ySRC = 0; this.wSRC = 170; this.hSRC = 170;
+        break;
+      }
+      case 48:{ // Shield Smasher
+        this.x = naves[this.id].x + naves[this.id].w * -1 / 128 + naves[this.id].w * 0 / 128 * Math.cos(naves[this.id].rot + Math.PI / 6 * this.n);
+        this.y = naves[this.id].y + naves[this.id].h * -11 / 128 + naves[this.id].w * 0 / 128 * Math.sin(naves[this.id].rot + Math.PI / 6 * this.n);
+        this.w = naves[this.id].w * 130 / 128, this.h = naves[this.id].h * 150 / 128; this.rot = naves[this.id].rot + Math.PI / 6 * this.n;
+        this.xSRC = 349; this.ySRC = 0; this.wSRC = 130; this.hSRC = 150;
+        break;
+      }
+      case 49:{ // Oversmasher
+        if(this.n == 0){
+          this.x = naves[this.id].x + naves[this.id].w * -1 / 128 + naves[this.id].w * 0 / 128 * Math.cos(naves[this.id].rot);
+          this.y = naves[this.id].y + naves[this.id].h * -11 / 128 + naves[this.id].w * 0 / 128 * Math.sin(naves[this.id].rot);
+          this.w = naves[this.id].w * 130 / 128, this.h = naves[this.id].h * 150 / 128; this.rot = naves[this.id].rot;
+          this.xSRC = 349; this.ySRC = 0; this.wSRC = 130; this.hSRC = 150;
+        }else{
+          this.x = naves[this.id].x + naves[this.id].w * 32 / 128 + naves[this.id].w * 68 / 128 * Math.cos(naves[this.id].rot + Math.PI);
+          this.y = naves[this.id].y + naves[this.id].h * 20 / 128 + naves[this.id].w * 68 / 128 * Math.sin(naves[this.id].rot + Math.PI);
+          this.w = naves[this.id].w / 2, this.h = naves[this.id].h * 88 / 128; this.rot = naves[this.id].rot + Math.PI;
+          this.xSRC = 65; this.ySRC = 0; this.wSRC = 64; this.hSRC = 88;
+        }
+        break;
+      }
+      case 50:{ // Booster
+        if(this.n == 0){
+          this.x = naves[this.id].x + naves[this.id].w * 32 / 128 + naves[this.id].w * 88 / 128 * Math.cos(naves[this.id].rot);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 88 / 128 * Math.sin(naves[this.id].rot);
+          this.w = naves[this.id].w * 64 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot;
+          this.xSRC = 0; this.ySRC = 0; this.wSRC = 64; this.hSRC = 64;
+        }else if(this.n == 1){
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 60 / 128 * Math.cos(naves[this.id].rot + Math.PI * 2 / 3);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 60 / 128 * Math.sin(naves[this.id].rot + Math.PI * 2 / 3);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot + Math.PI * 2 / 3;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }else if(this.n == 2){
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 60 / 128 * Math.cos(naves[this.id].rot - Math.PI * 2 / 3);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 60 / 128 * Math.sin(naves[this.id].rot - Math.PI * 2 / 3);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot - Math.PI * 2 / 3;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }else if(this.n == 3){
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 80 / 128 * Math.cos(naves[this.id].rot + Math.PI * 5 / 6);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 80 / 128 * Math.sin(naves[this.id].rot + Math.PI * 5 / 6);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot + Math.PI * 5 / 6;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }else{
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 80 / 128 * Math.cos(naves[this.id].rot - Math.PI * 5 / 6);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 80 / 128 * Math.sin(naves[this.id].rot - Math.PI * 5 / 6);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot - Math.PI * 5 / 6;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }
+        break;
+      }
+      case 51:{ // Warrior
+        if(this.n == 0){
+          this.x = naves[this.id].x + naves[this.id].w * 32 / 128 + naves[this.id].w * 88 / 128 * Math.cos(naves[this.id].rot);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 88 / 128 * Math.sin(naves[this.id].rot);
+          this.w = naves[this.id].w * 64 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot;
+          this.xSRC = 0; this.ySRC = 0; this.wSRC = 64; this.hSRC = 64;
+        }else if(this.n == 1){
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 80 / 128 * Math.cos(naves[this.id].rot + Math.PI * 5 / 6);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 80 / 128 * Math.sin(naves[this.id].rot + Math.PI * 5 / 6);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot + Math.PI * 5 / 6;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }else if(this.n == 2){
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 80 / 128 * Math.cos(naves[this.id].rot - Math.PI * 5 / 6);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 80 / 128 * Math.sin(naves[this.id].rot - Math.PI * 5 / 6);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot - Math.PI * 5 / 6;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }else if(this.n == 3){
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 80 / 128 * Math.cos(naves[this.id].rot + Math.PI / 2);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 80 / 128 * Math.sin(naves[this.id].rot + Math.PI / 2);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot + Math.PI / 2;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }else{
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 80 / 128 * Math.cos(naves[this.id].rot - Math.PI / 2);
+          this.y = naves[this.id].y + naves[this.id].h * 32 / 128 + naves[this.id].w * 80 / 128 * Math.sin(naves[this.id].rot - Math.PI / 2);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h / 2; this.rot = naves[this.id].rot - Math.PI / 2;
+          this.xSRC = 300; this.ySRC = 0; this.wSRC = 48; this.hSRC = 64;
+        }
+        break;
+      }
+      case 60:{ // Mothership
+        this.x = naves[this.id].x + naves[this.id].w * 56 / 128 + naves[this.id].w * 70 / 128 * Math.cos(naves[this.id].rot + Math.PI / 8 * this.n);
+        this.y = naves[this.id].y + naves[this.id].h * 56 / 128 + naves[this.id].w * 70 / 128 * Math.sin(naves[this.id].rot + Math.PI / 8 * this.n);
+        this.w = naves[this.id].w * 16 / 128, this.h = naves[this.id].h * 16 / 128; this.rot = naves[this.id].rot + Math.PI / 8 * this.n;
+        this.xSRC = 0; this.ySRC = 0; this.wSRC = 64; this.hSRC = 64;
+        break;
+      }
+      case 61:{ // Rifle Tower
+        if(this.n == 0){ // Base
+          this.x = naves[this.id].x + naves[this.id].w * 47 / 128 + naves[this.id].w * 68 / 128 * Math.cos(naves[this.id].rot);
+          this.y = naves[this.id].y + naves[this.id].h * 24 / 128 + naves[this.id].w * 68 / 128 * Math.sin(naves[this.id].rot);
+          this.w = naves[this.id].w * 34 / 128, this.h = naves[this.id].h * 80 / 128; this.rot = naves[this.id].rot;
+          this.xSRC = 1495; this.ySRC = 0; this.wSRC = 34; this.hSRC = 80;
+        }else if(this.n == 1){ // Fora
+          this.x = naves[this.id].x + naves[this.id].w * 40 / 128 + naves[this.id].w * 83 / 128 * Math.cos(naves[this.id].rot);
+          this.y = naves[this.id].y + naves[this.id].h * 31 / 128 + naves[this.id].w * 83 / 128 * Math.sin(naves[this.id].rot);
+          this.w = naves[this.id].w * 48 / 128, this.h = naves[this.id].h * 66 / 128; this.rot = naves[this.id].rot;
+          this.xSRC = 65; this.ySRC = 0; this.wSRC = 64; this.hSRC = 88;
+        }else{ // Dentro
+          this.x = naves[this.id].x + naves[this.id].w * 24 / 128 + naves[this.id].w * 78 / 128 * Math.cos(naves[this.id].rot);
+          this.y = naves[this.id].y + naves[this.id].h * 36 / 128 + naves[this.id].w * 78 / 128 * Math.sin(naves[this.id].rot);
+          this.w = naves[this.id].w * 80 / 128, this.h = naves[this.id].h * 56 / 128; this.rot = naves[this.id].rot;
+          this.xSRC = 219; this.ySRC = 0; this.wSRC = 80; this.hSRC = 56;
+        }
+        break;
+      }
+      case 62:{ // 16 Shot Tower
+        let angulo = Math.PI * this.n * 2 / 16;
+        if(this.n < 16){
+          this.x = naves[this.id].x + naves[this.id].w * 54 / 128 + naves[this.id].w * 73 / 128 * Math.cos(naves[this.id].rot + angulo);
+          this.y = naves[this.id].y + naves[this.id].h * 59 / 128 + naves[this.id].w * 73 / 128 * Math.sin(naves[this.id].rot + angulo);
+          this.w = naves[this.id].w * 20 / 128, this.h = naves[this.id].h * 14 / 128; this.rot = naves[this.id].rot + angulo;
+          this.xSRC = 219; this.ySRC = 0; this.wSRC = 80; this.hSRC = 56;
+        }else{
+          this.x = naves[this.id].x + naves[this.id].w * 56 / 128 + naves[this.id].w * 69 / 128 * Math.cos(naves[this.id].rot + angulo);
+          this.y = naves[this.id].y + naves[this.id].h * 55 / 128 + naves[this.id].w * 69 / 128 * Math.sin(naves[this.id].rot + angulo);
+          this.w = naves[this.id].w * 16 / 128, this.h = naves[this.id].h * 22 / 128; this.rot = naves[this.id].rot + angulo;
+          this.xSRC = 65; this.ySRC = 0; this.wSRC = 64; this.hSRC = 88;
+        }
+        break;
+      }
+      case 63:{ // Trapper Tower
+        let angulo = Math.PI * this.n * 2 / 12;
+        this.x = naves[this.id].x + naves[this.id].w * 103 / 256 + naves[this.id].w * 139 / 256 * Math.cos(naves[this.id].rot + angulo);
+        this.y = naves[this.id].y + naves[this.id].h * 42 / 128 + naves[this.id].w * 139 / 256 * Math.sin(naves[this.id].rot + angulo);
+        this.w = naves[this.id].w * 25 / 128, this.h = naves[this.id].h * 44 / 128; this.rot = naves[this.id].rot + angulo;
+        this.xSRC = 855; this.ySRC = 0; this.wSRC = 50; this.hSRC = 88;
+        break;
+      }
+      case 64:{ // Summoner Tower x += (64 - w) y += (64 - h)
+        let angulo = naves[this.id].rot + Math.PI * this.n / 4;
+        this.x = naves[this.id].x + naves[this.id].w * 48 / 128 + naves[this.id].w * 68 / 128 * Math.cos(angulo);
+        this.y = naves[this.id].y + naves[this.id].h * 42 / 128 + naves[this.id].w * 68 / 128 * Math.sin(angulo);
+        this.w = naves[this.id].w * 32 / 128, this.h = naves[this.id].h * 44 / 128; this.rot = angulo;
+        this.xSRC = 65; this.ySRC = 0; this.wSRC = 64; this.hSRC = 88;
+        break;
+      }
     }
   }
   shoot(){
@@ -581,11 +749,8 @@ class Cano{
     let y = (this.w>this.h)?(this.y+this.w/2-this.h/2):(this.y+this.h/2-this.w/2);
     let w = (this.w>this.h)?this.h:this.w;
     let h = (this.w>this.h)?this.h:this.w;
-    if(this.foguetes){
-      balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
-    }
-    else if(this.overseers){
-      drones.push(new Drone("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, this.team, this.classe, this.id));
+    if(this.overseers){
+      drones.push(new Drone(x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, this.team, this.classe, this.id));
     }
     else if(this.autos){
       let angulo;
@@ -608,21 +773,21 @@ class Cano{
         }
       }
       if(Math.abs(angulo-this.rot) < Math.PI / 2 || Math.abs(angulo-this.rot) > Math.PI * 3 / 2){
-        balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, angulo, naves[this.id].bulletPen, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
+        balas.push(new Bala(x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, angulo, naves[this.id].bulletPen, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
+        //naves[this.id].spd += this.rot;
       }
     }
-    else if(this.trapper){
-      balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen*4, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
+    else if(this.trappers){
+      balas.push(new Bala(x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen*4, naves[this.id].bulletDmg, this.team, this.classe, this.id, this.n));
     }
     //Resto
     else{
-      console.log(this.n+" Resto");
       if(this.classe == 37 && this.n == 1)
-        balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen / 20, naves[this.id].bulletDmg * 100, naves[this.id].team, naves[this.id].classe, this.id, this.n));
+        balas.push(new Bala(x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen / 20, naves[this.id].bulletDmg * 100, naves[this.id].team, naves[this.id].classe, this.id, this.n));
       else if(this.classe == 40 && this.n == 0)
-        balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize*2, naves[this.id].bulletSize*2, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg*4, naves[this.id].team, naves[this.id].classe, this.id, this.n));
+        balas.push(new Bala(x, y, naves[this.id].bulletSize*2, naves[this.id].bulletSize*2, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg*4, naves[this.id].team, naves[this.id].classe, this.id, this.n));
       else
-        balas.push(new Bala("bala.png", x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
+        balas.push(new Bala(x, y, naves[this.id].bulletSize, naves[this.id].bulletSize, naves[this.id].bulletSpd, this.rot, naves[this.id].bulletPen, naves[this.id].bulletDmg, naves[this.id].team, naves[this.id].classe, this.id, this.n));
     }
   }
   draw(){
@@ -640,7 +805,7 @@ class Cano{
     ctx.translate(+this.x + this.w / 2, + this.y + this.h / 2);
     ctx.rotate(this.rot);
     ctx.translate(-this.x - this.w / 2, - this.y - this.h / 2);
-    ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
+    ctx.drawImage(imagens.canos, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
     ctx.restore();
     }
 }

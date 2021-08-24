@@ -10,7 +10,7 @@ class Hud{
     for(let i = 0; i < 8; i++)
       this.botoesStats.push(new BotaoStats(i, this.colors[i]));
     for(let i = 0; i < classes[0].length; i++)
-      this.botoesClasses.push(new BotaoClasses("classes.png", i));
+      this.botoesClasses.push(new BotaoClasses(i));
     this.click = 1;
   }
   clicked(){
@@ -52,13 +52,14 @@ class Hud{
       ctx.fillStyle = "#fffa";
       ctx.fillRect(cam.x + cam.w * 0.25, cam.y + cam.h - cam.h / 24, cam.w * 0.5 * naves[0].exp / naves[0].nextLv , cam.h / 64);
     }
+    this.drawMinimap();
   }
   drawStats(){
     var ctx = game.canvas.getContext("2d");
     ctx.fillStyle = "#888a";
-    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.fillRect(cam.x, cam.y + cam.h * 0.7, cam.w * 0.2, cam.h * 0.3);
     ctx.strokeStyle = "#000f";
-    ctx.strokeRect(this.x, this.y, this.w, this.h);
+    ctx.strokeRect(cam.x, cam.y + cam.h * 0.7, cam.w * 0.2, cam.h * 0.3);
     for(let stat of this.stats)
       stat.draw()
     for(let botao of this.botoesStats)
@@ -78,5 +79,23 @@ class Hud{
       let x = (i % 2) * 128; let y = Math.floor(i / 2) * 128;
       this.botoesClasses[nClasses[i]].draw(cam.x + x, cam.y + y);
     }
+  }
+  drawMinimap(){
+    var ctx = game.canvas.getContext("2d");
+    let x = cam.x + cam.w * 0.775, y = cam.y + cam.h * 0.775;
+    let w = cam.w * 0.2, h = cam.h * 0.2;
+    ctx.fillStyle = "#888a";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = "#000f";
+    ctx.strokeRect(x, y, w, h);
+    ctx.strokeStyle = "#0008";
+    ctx.strokeRect(x+0.1*w, y+0.1*h, w*0.8, h*0.8);
+    ctx.fillStyle = "#000a";
+    x = x + naves[meuID].x / game.width * w; w = w / 30;
+    y = y + naves[meuID].y / game.height * h; h = h / 20;
+    ctx.translate(+ x + w / 2, + y + h / 2);
+    ctx.rotate(naves[meuID].rot);
+    ctx.translate(- x - w / 2, - y - h / 2);
+    ctx.drawImage(imagens.balas, 512, 128 * naves[meuID].team, 128, 120, x, y, w, h);
   }
 }

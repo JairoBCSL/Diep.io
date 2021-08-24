@@ -1,10 +1,8 @@
 class Bala{
-  constructor(spriteSRC, x, y, w, h, spd, rot, hpMax, bodyDmg, team, classe, id, n){
-    this.sprite = new Image();
-    this.sprite.src = spriteSRC;
+  constructor(x, y, w, h, spd, rot, hpMax, bodyDmg, team, classe, id, n){
     //this.spriteCFG = spriteCFG;
     this.x = x; this.y = y; this.w = w; this.h = h; this.wSRC = 128; this.hSRC = 128;
-     this.rotS = rot;
+    this.rotS = rot; this.peso = w * h;
     if(naves[id].canos[n].trappers){ // Trappers
       this.xSRC = 386; this.wSRC = 128; this.hSRC = 128;
     }else if(naves[id].canos[n].classe == 20){ // Skimmer
@@ -41,10 +39,15 @@ class Bala{
     }
     if(naves[this.id].canos[this.n].trappers){
       this.spd -= this.spdMax * 0.02;
-      this.hp -= 0.125;
-    }else{
+      this.hp -= this.hpMax * 0.00125;
+    }
+    else if(this.classe == 48){
+      this.x = naves[this.id].x + (naves[this.id].w-this.w) / 2;
+      this.y = naves[this.id].y + (naves[this.id].h-this.h) / 2;
+    }
+    else{
       this.spd -= this.spdMax * 0.002;
-      this.hp -= 0.5;
+      this.hp -= this.hpMax * 0.005;
     }
   }
   dano(){
@@ -58,7 +61,7 @@ class Bala{
         this.reload = this.reloadMax;
       }
     }
-    if(this.classe == 21 && this.n){ // Skimmer
+    if(this.classe == 21 && this.n){ // Rocketeer
       if(this.reload > 0)
         this.reload--;
       else{
@@ -89,17 +92,19 @@ class Bala{
     for(let nave of naves){ // Colidiu com inimigos m*n
       if(this.team != nave.team)
         if(collision(this, nave)){
-          let difX = (nave.x + nave.w / 2) - (this.x + this.w / 2);
-          let difY = (nave.y + nave.h / 2) - (this.y + this.h / 2);
-          let angulo = Math.atan2(difY, difX);
-          if(this.x - Math.cos(angulo) < game.width && this.x - Math.cos(angulo) > 0)
-            this.x -= Math.cos(angulo) ;
-          if(this.y - Math.sin(angulo) < game.height && this.y - Math.sin(angulo) > 0)
-            this.y -= Math.sin(angulo);
-          if(nave.x + Math.cos(angulo) < game.width && nave.x + Math.cos(angulo) > 0)
-            nave.x += Math.cos(angulo);
-          if(nave.y + Math.sin(angulo) < game.height && nave.y + Math.sin(angulo) > 0)
-            nave.y += Math.sin(angulo);
+            let difX = (nave.x + nave.w / 2) - (this.x + this.w / 2);
+            let difY = (nave.y + nave.h / 2) - (this.y + this.h / 2);
+            let angulo = Math.atan2(difY, difX);
+            if(this.x - Math.cos(angulo) < game.width && this.x - Math.cos(angulo) > 0)
+              this.x -= Math.cos(angulo) ;
+            if(this.y - Math.sin(angulo) < game.height && this.y - Math.sin(angulo) > 0)
+              this.y -= Math.sin(angulo);
+          if(!nave.pesada){
+            if(nave.x + Math.cos(angulo) < game.width && nave.x + Math.cos(angulo) > 0)
+              nave.x += Math.cos(angulo);
+            if(nave.y + Math.sin(angulo) < game.height && nave.y + Math.sin(angulo) > 0)
+              nave.y += Math.sin(angulo);
+          }
           nave.hp -= this.bodyDmg;
           if(nave.hp <= 0){
             naves[this.id].score++;
@@ -157,13 +162,11 @@ class Bala{
           }
         }
     }
-
   }
   die(){
     if(this.hp <= 0){ // Bala dissipou
       if(this.classe == 19 && this.n == 0){// Annihinator
         for(let i = 0; i < 8; i++){
-          console.log(i);
           balas.push(new Bala("bala.png", this.x+this.w/2, this.y+this.h/2, naves[this.id].bulletSize/8, naves[this.id].bulletSize/8, naves[this.id].bulletSpd*1.2, this.rot+Math.PI/4*i, naves[this.id].bulletPen/8, naves[this.id].bulletDmg/8, naves[this.id].team, naves[this.id].classe, this.id, 1));
         }
       }
@@ -184,12 +187,12 @@ class Bala{
       ctx.rotate(this.rotS);
       ctx.translate(-this.x - this.w / 2, - this.y - this.h / 2);
       if(this.classe == 20 && this.n == 1){
-        ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x - 20 / 128 * this.w, this.y, this.w*168/128, this.h);
+        ctx.drawImage(imagens.balas, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x - 20 / 128 * this.w, this.y, this.w*168/128, this.h);
       }else if(this.classe == 21 && this.n == 1){
-          ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x - 28 / 128 * this.w, this.y, this.w*156/128, this.h);
+          ctx.drawImage(imagens.balas, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x - 28 / 128 * this.w, this.y, this.w*156/128, this.h);
       }
       else
-        ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
+        ctx.drawImage(imagens.balas, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
 
       ctx.restore();
       this.stats();

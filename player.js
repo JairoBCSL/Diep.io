@@ -19,8 +19,8 @@ class Player extends Nave{
     }
   }
   aim(){
-    if(this.classe == 17 || this.classe == 29){ // Autos
-        
+    if(this.autos || this.smasher){ // Autos
+
     }else{
       let difX = (game.mouseX + cam.x) - (this.x + this.w / 2);
       let difY = (game.mouseY + cam.y) - (this.y + this.h / 2);

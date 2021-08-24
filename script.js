@@ -1,9 +1,13 @@
 /*
 Só procurar se tiver na tela (cam.x<x<cam.w+cam.w)
-Smashers
-Triangles
+
+Technicians (ferramenta, engrenagem, átomo e engrenagem da medicina)
+
 Recoil
-Technicians
+Modos
+2 Teams
+4 Teams
+Battle Royale
 Modo Mothership
 Modo Conquista
 Modo Pega bandeiras
@@ -21,7 +25,7 @@ Classes:
   - Auto Smasher (4ª classe): Já sabe
   - Landmine (4ª classe): Fica invisível
 - Destroyer (3ª classe)
-  - Annihinator (3ª classe): Bala explode
+  - Annihinator (4ª classe): Bala explode
 - Technician (3ª classe) Instala torreta
   - Engennier (4ª classe) Instala base talvez
   - Scientist (4ª classe) Teleporta
@@ -34,29 +38,30 @@ O Bardo
 
 var fps = 60, timestamp = new Date().getTime(), count = 0, aux = 0;
 var vezes = 0, vezesAux = 0, aff = "", levelUp = 0, meuID = 0;
+var dRot = 0, rotAux = 0, rotA = 0, rot = 0;
 
 var classes = [
- //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44
-  [4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
-  [4, 4, 4, 4, 4, 4, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Sniper
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Flank
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Smasher
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Destroyer
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Gunner
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Rifle
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Tiple Shot
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Quad Tank
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin Flank
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 1, 4, 4, 4],//Stalker
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4],//Overseer
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4],//Hunter
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 1, 1, 1],//Trapper
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Tri-Angle
-  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]//Auto 3
+ //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59
+  [4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
+  [4, 4, 4, 4, 4, 4, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Sniper
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Flank
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Smasher
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Destroyer
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Gunner
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Rifle
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Tiple Shot
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Quad Tank
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin Flank
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Stalker
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Overseer
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Hunter
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Trapper
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4],//Tri-Angle
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]//Auto 3
 ];
-console.log(classes[0].length);
+
 var game = {
   width: 8192,
   height: 6144,
@@ -65,6 +70,8 @@ var game = {
     this.canvas.width = 1200;
     this.canvas.height = 900;
     game.keys = [];
+    game.mouseX = [];
+    game.mouseY = [];
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     this.interval = setInterval(update, 1000 / fps);
@@ -144,8 +151,20 @@ var cam = {
   }
 };
 
+var imagens = {
+  naves: new Image(), canos: new Image(), balas: new Image(),
+  classes: new Image(), tiles: new Image(),
+  init: function(){
+    this.naves.src = "imagens/naves.png";
+    this.canos.src = "imagens/canos.png";
+    this.balas.src = "imagens/balas.png";
+    this.classes.src = "imagens/classes.png";
+    this.tiles.src = "imagens/tiles.png";
+  }
+}
+imagens.init();
 hud = new Hud();
-map = new Map(mapas.layers, 64, 64, 256, "tiles.png", 3);
+map = new Map(mapas.layers, 64, 64, 256, 3);
 naves = [];
 balas = [];
 npcs = [];
@@ -153,24 +172,27 @@ bases = [];
 drones = [];
 bases.push(new Base(32, 32, 1200, game.height - 32 - 32, 0));
 bases.push(new Base(game.width - 1200 - 32, 32, 1200, game.height - 32 - 32, 1));
-naves.push(new Player("nave.png", spriteX, 64, 64, 160, 160, 3, 5, 0, 0, naves.length));
-//naves.push(new Enemy("nave.png", spriteX, 4400, 64, 64, 64, 3, 5, 1, 0, naves.length));
+naves.push(new Player(2800, 3256, 48, 3, 0, 0, naves.length));
+//naves.push(new Mothership(2800, 3256, 192, 3, 0, 60, naves.length));
+naves.push(new Tower(3256, 3256, 192, 3, 1, 62, naves.length));
+//naves.push(new Enemy("nave.png", spriteX, 4400, 64, 64, 64, 3, 1, 0, naves.length));
 for(let i = 0; i < 0; i++)
-  naves.push(new Enemy("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 32), bases[0].y + Math.floor(Math.random() * bases[0].h - 32), 64, 64, 3, 5, 0, 0, naves.length));
+  naves.push(new Enemy(bases[0].x + Math.floor(Math.random() * bases[0].w - 32), bases[0].y + Math.floor(Math.random() * bases[0].h - 32), 48, 3, 0, 0, naves.length));
 for(let i = 0; i < 0; i++)
-  naves.push(new Enemy("nave.png", spriteX, bases[1].x + Math.floor(Math.random() * bases[1].w - 32), bases[1].y + Math.floor(Math.random() * bases[1].h - 32), 64, 64, 3, 5, 1, 0, naves.length));
-for(let i = 0; i < 64; i++)
-  npcs.push(new Npc("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 0));
+  naves.push(new Enemy(4000 + Math.floor(Math.random() * bases[0].w - bases[0].w), 4000 + Math.floor(Math.random() * bases[0].w - bases[0].w/2), 48, 3, 1, 0, naves.length));
+  //naves.push(new Enemy("nave.png", spriteX, bases[1].x + Math.floor(Math.random() * bases[1].w - 32), bases[1].y + Math.floor(Math.random() * bases[1].h - 32), 64, 64, 3, 1, 0, naves.length));
 for(let i = 0; i < 0; i++)
-  npcs.push(new Npc("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 1));
+  npcs.push(new Npc(bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 0));
 for(let i = 0; i < 0; i++)
-  npcs.push(new Npc("nave.png", spriteX, bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 2));
+  npcs.push(new Npc(bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 1));
 for(let i = 0; i < 0; i++)
-  npcs.push(new Npc("nave.png", spriteX, bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 0));
+  npcs.push(new Npc(bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 2));
 for(let i = 0; i < 0; i++)
-  npcs.push(new Npc("nave.png", spriteX, bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 1));
+  npcs.push(new Npc(bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 0));
 for(let i = 0; i < 0; i++)
-  npcs.push(new Npc("nave.png", spriteX, bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 2));
+  npcs.push(new Npc(bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 1));
+for(let i = 0; i < 0; i++)
+  npcs.push(new Npc(bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 2));
 
 function startGame(){
   game.start();
@@ -194,7 +216,7 @@ function redraw(){
   ctx.fillStyle = "#4F4";
   for(let i = Math.floor(cam.x / map.tSize); i <= Math.floor((cam.x + cam.w) / map.tSize); i++)
     for(let j = Math.floor(cam.y / map.tSize); j <= Math.floor((cam.y + cam.h) / map.tSize); j++)
-      ctx.drawImage(map.bg, 0, 0, map.tSize, map.tSize, i * map.tSize, j * map.tSize, map.tSize, map.tSize);
+      ctx.drawImage(imagens.tiles, 0, 0, map.tSize, map.tSize, i * map.tSize, j * map.tSize, map.tSize, map.tSize);
   for(let bala of balas)
     if(isOnScreen(bala))
       bala.draw();
@@ -324,8 +346,8 @@ function debug(){
   text += "<br><br>Class: " + naves[x].classe;
   text += "<br><br>Pontos: " + naves[x].pt;
   text += "<br><br>Pontos de Classe: " + naves[x].ptClasse;
-  text += "<br><br>HPRegen: (" + naves[x].clStats[0] + ", " + naves[x].ptStats[0] + ") => " + naves[x].hpRegen;
-  text += "<br><br>HPRegen: (" + naves[x].clStats[1] + ", " + naves[x].ptStats[1] + ") => " + naves[x].hpMax;
+  text += "<br><br>HPRegen: (" + naves[x].clStats[0] + ", " + naves[x].ptStats[0] + ") => " + naves[x].hpRegen + " - " + naves[x].regenCooldownMax;
+  text += "<br><br>HP: (" + naves[x].clStats[1] + ", " + naves[x].ptStats[1] + ") => " + naves[x].hpMax;
   text += "<br><br>HPBodyDmg: (" + naves[x].clStats[2] + ", " + naves[x].ptStats[2] + ") => " + naves[x].bodyDmg;
   text += "<br><br>BulletSpd: (" + naves[x].clStats[3] + ", " + naves[x].ptStats[3] + ") => " + naves[x].bulletSpd;
   text += "<br><br>BulletPen: (" + naves[x].clStats[4] + ", " + naves[x].ptStats[4] + ") => " + naves[x].bulletPen;
@@ -335,17 +357,24 @@ function debug(){
   text += "<br><br>Poder = " + naves[x].clStats[5] * naves[x].clStats[4] / naves[x].clStats[6];
   text += "<br><br>Exp: (" + naves[x].exp + "," + naves[x].nextLv + ") => " + naves[x].lv;
   text += "<br><br>Reload: (" + naves[x].reload + " / " + naves[x].reloadMax + ")";
-  text += "<br><br>Reload: (" + naves[x].reloadAuto + " / " + naves[x].reloadMax + ")";
+  text += "<br><br>Reload Auto: (" + naves[x].reloadAuto + " / " + naves[x].reloadMax + ")";
+  text += "<br><br>Drones: (" + naves[x].drones + " / " + naves[x].dronesMax + ")";
   count++;
+  dRot = Math.abs(rotA - naves[0].rot);
+  rotA = naves[0].rot;
+  rotAux += dRot;
   if((new Date().getTime() - timestamp) >= 1000){
     timestamp = new Date().getTime();
     aux = count;
     count = 0;
     vezesAux = vezes;
     vezes = 0;
+    rot = rotAux / aux;
+    rotAux = 0;
   }
   text += "<br><br>Vezes : " + vezesAux / aux;
   text += "<br><br>FPS: " + aux;
+  text += "<br><br>Rot: " + rot;
   document.getElementById("stats").innerHTML = text;
   let pontos = [], score = "", maior, atual;
   for(let nave of naves){

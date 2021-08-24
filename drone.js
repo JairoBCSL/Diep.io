@@ -1,7 +1,5 @@
 class Drone{
-  constructor(spriteSRC, x, y, w, h, spdMax, rot, bulletPen, bulletDmg, team, classe, id){
-    this.sprite = new Image();
-    this.sprite.src = spriteSRC;
+  constructor(x, y, w, h, spdMax, rot, bulletPen, bulletDmg, team, classe, id){
     this.x = x; this.y = y; this.w = w; this.h = h; // Posição
     this.wA = this.w; this.hA = this.h;
     this.canoX = 0; this.canoY = 0; this.canoZ = 0; this.canoW = 0;
@@ -37,122 +35,72 @@ class Drone{
   }
   controle(){
     let pertos = 0, maisPerto = -1, maisPertoDist = 1000000, atualDist;
-    let perigo = 0, amigoDist;
-    for(let nave of naves){ // Procurando inimigo
-      if(nave.team != this.team){
-        atualDist = Math.sqrt(Math.pow(nave.x+nave.w/2-this.x-this.w/2, 2) + Math.pow(nave.y+nave.h/2-this.y-this.h/2, 2));
-        if(atualDist < 480){
-          pertos++;
-          perigo += nave.batalha;
+    let perigo = 0, amigoDist; this.hover += 0.005;
+    let x, y, modulo, angulo, vai, dist;
+    if(this.classe == 64)
+      dist = naves[this.id].w*2;
+    else
+      dist = naves[this.id].w*9;
+    if(naves[this.id].tiro){ // Comandando
+      x = game.mouseX + cam.x;
+      y = game.mouseY + cam.y;
+      angulo = Math.atan2(this.y + this.h / 2 - y,  x - this.x - this. w / 2);
+      modulo = Math.sqrt(Math.pow(x - this.x - this.w / 2, 2)+Math.pow(y - this.y - this.h / 2, 2));
+      this.tiro = 1;
+    }else{ // Pensando
+      for(let i = 0; i < naves.length; i++){ // Procurando inimigo
+        atualDist = Math.sqrt(Math.pow(naves[i].x+naves[i].w/2-this.x-this.w/2, 2) + Math.pow(naves[i].y+naves[i].h/2-this.y-this.h/2, 2));
+        if(atualDist < dist){
+          if(naves[i].team != this.team){
+            pertos++;
+            perigo += naves[i].batalha;
+            if(atualDist < maisPertoDist){
+              maisPertoDist = atualDist;
+              maisPerto = i;
+            }
+          }else
+            perigo -= naves[i].batalha;
         }
-        if(atualDist < maisPertoDist){
-          maisPertoDist = atualDist;
-          maisPerto = naves.indexOf(nave);
-        }
-      }else{
-        amigoDist = Math.sqrt(Math.pow(nave.x+nave.w/2-this.x-this.w/2, 2) + Math.pow(nave.y+nave.h/2-this.y-this.h/2, 2));
-        if(amigoDist < 480){
-          perigo -= nave.batalha;
-        }
+      }
+      if(pertos){
+        x = naves[maisPerto].x + naves[maisPerto].w / 2;
+        y = naves[maisPerto].y + naves[maisPerto].h / 2;
+        modulo = Math.sqrt(Math.pow(x - naves[this.id].x - naves[this.id].w / 2, 2)+Math.pow(y - naves[this.id].y - naves[this.id].h / 2, 2));
+      }
+      if(pertos && modulo < dist){ // Atacando
+        modulo = Math.sqrt(Math.pow(x - this.x - this.w / 2, 2)+Math.pow(y - this.y - this.h / 2, 2));
+        angulo = Math.atan2(this.y + this.h / 2 - y,  x - this.x - this. w / 2);
+        this.tiro = 1;
+      }else{ // Circulando
+        x = naves[this.id].x + naves[this.id].w / 2 + naves[this.id].w * 2 * Math.cos(this.hover);
+        y = naves[this.id].y + naves[this.id].h / 2 + naves[this.id].h * 2 * Math.sin(this.hover);
+        modulo = Math.sqrt(Math.pow(this.x+this.w/2-x,2) + Math.pow(this.y+this.h/2-y, 2));
+        angulo = Math.atan2(this.y + this.h / 2 - y, x - this.x - this.w / 2);
+        this.rot = angulo;
       }
     }
-    let x = naves[this.id].x + naves[this.id].w / 2 + 160 * Math.cos(this.hover);
-    let y = naves[this.id].y + naves[this.id].h / 2 + 160 * Math.sin(this.hover);
-    let z = Math.atan2(this.y + this.h - y, x - this.x - this.w);
-    this.hover += 0.005;
-    // Comandando
-    if(naves[this.id].tiro){
-      this.rot = Math.atan2(game.mouseY + cam.y - this.y - this.h/2, game.mouseX + cam.x - this.x - this.w / 2);
-      this.tiro = 1;
-      let modulo = Math.sqrt( Math.pow(this.x + this.w / 2 - game.mouseX - cam.x, 2) + Math.pow(this.y + this.h / 2 - game.mouseY - cam.y, 2) );
-      let angulo = Math.atan2(this.y + this.h / 2 - game.mouseY - cam.y, game.mouseX + cam.x - this.x - this.w / 2);
-      let vai;
-      if(modulo > 20)
-        vai = +1;
-      else if(modulo < 10)
-        vai = -1;
-      if(Math.cos(angulo) > 0.2){
-        this.right = vai;
-        this.left = 0;
-      }else if(Math.cos(angulo) < -0.2){
-        this.left = vai;
-        this.right = 0;
-      }else{
-        this.left = 0;
-        this.right = 0;
-      }if(Math.sin(angulo) > 0.2){
-        this.up = vai;
-        this.down = 0;
-      }else if(Math.sin(angulo) < -0.2){
-        this.down = vai;
-        this.up = 0;
-      }else{
-        this.up = 0;
-        this.down = 0;
-      }
-    }
-    // Tem alguém perto?
-    else if(pertos && z < 480){
-      // Ataca
-      this.rot = Math.atan2(naves[maisPerto].y+naves[maisPerto].h / 2 - this.y - this.h / 2, naves[maisPerto].x+naves[maisPerto].w / 2-this.x-this.w / 2);
-      this.tiro = 1;
-      let modulo = Math.sqrt( Math.pow(this.x+this.w/2-naves[maisPerto].x-naves[maisPerto].w/2, 2) + Math.pow(this.y+this.h/2-naves[maisPerto].y-naves[maisPerto].h/2, 2) );
-      let angulo = Math.atan2(this.y+this.h/2-naves[maisPerto].y-naves[maisPerto].h/2, naves[maisPerto].x+naves[maisPerto].w/2-this.x-this.w/2);
-      let vai = 1;
-      if(Math.cos(angulo) > 0.2){
-        this.right = vai;
-        this.left = 0;
-      }else if(Math.cos(angulo) < -0.2){
-        this.left = vai;
-        this.right = 0;
-      }else{
-        this.left = 0;
-        this.right = 0;
-      }if(Math.sin(angulo) > 0.2){
-        this.up = vai;
-        this.down = 0;
-      }else if(Math.sin(angulo) < -0.2){
-        this.down = vai;
-        this.up = 0;
-      }else{
-        this.up = 0;
-        this.down = 0;
-      }
-
-    }
-    // Circula
-    else{
-      let x = naves[this.id].x + naves[this.id].w / 2 + naves[this.id].w * 2 * Math.cos(this.hover);
-      let y = naves[this.id].y + naves[this.id].h / 2 + naves[this.id].h * 2 * Math.sin(this.hover);
-      this.tiro = 1;
-      let modulo = Math.sqrt(Math.pow(this.x+this.w/2-x,2) + Math.pow(this.y+this.h/2-y, 2));
-      let angulo = Math.atan2(this.y + this.h / 2 - y, x - this.x - this.w / 2);
-      this.rot = Math.PI;
-      let vai;
-      if(modulo > this.w/2)
-        vai = +1;
-      else
-        vai = 0;
-      if(Math.cos(angulo) > 0.2){
-        this.right = vai;
-        this.left = 0;
-      }else if(Math.cos(angulo) < -0.2){
-        this.left = vai;
-        this.right = 0;
-      }else{
-        this.left = 0;
-        this.right = 0;
-      }if(Math.sin(angulo) > 0.2){
-        this.up = vai;
-        this.down = 0;
-      }else if(Math.sin(angulo) < -0.2){
-        this.down = vai;
-        this.up = 0;
-      }else{
-        this.up = 0;
-        this.down = 0;
-      }
-
+    if(modulo > this.w/2)
+      vai = +1;
+    else
+      vai = 0;
+    if(Math.cos(angulo) > 0.2){
+      this.right = vai;
+      this.left = 0;
+    }else if(Math.cos(angulo) < -0.2){
+      this.left = vai;
+      this.right = 0;
+    }else{
+      this.left = 0;
+      this.right = 0;
+    }if(Math.sin(angulo) > 0.2){
+      this.up = vai;
+      this.down = 0;
+    }else if(Math.sin(angulo) < -0.2){
+      this.down = vai;
+      this.up = 0;
+    }else{
+      this.up = 0;
+      this.down = 0;
     }
   }
   aim(){
@@ -207,7 +155,6 @@ class Drone{
     }
   }
   move(){
-    //console.log(this.id+": "+this.hp);
     this.dirX = this.right - this.left; // Andando
     this.dirY = this.down - this.up;
     if(this.dirX || this.dirY){
@@ -282,10 +229,10 @@ class Drone{
       ctx.translate(+this.x + this.w / 2, + this.y + this.h / 2);
       ctx.rotate(this.rot);
       ctx.translate(-this.x - this.w / 2, - this.y - this.h / 2);
-      ctx.drawImage(this.sprite, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
+      ctx.drawImage(imagens.balas, this.xSRC, this.ySRC, this.wSRC, this.hSRC, this.x, this.y, this.w, this.h);
 
       ctx.restore();
-      //this.stats();
+      this.stats();
     }
   }
   stats(){
