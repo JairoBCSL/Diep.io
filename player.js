@@ -1,30 +1,14 @@
 class Player extends Nave{
   controle(){
-    let pertos = [], maisPerto = -1, maisPertoDist = 1000000, atualDist;
-    let amigoDist, perigo = 0;
-    for(let nave of naves){ // Procurando inimigo
-      if(nave.team != this.team){
-        atualDist = Math.sqrt(Math.pow(nave.x+nave.w/2-this.x-this.w/2, 2) + Math.pow(nave.y+nave.h/2-this.y-this.h/2, 2));
-        if(atualDist < 960)
-          perigo += nave.batalha;
-        if(atualDist < maisPertoDist){
-          maisPertoDist = atualDist;
-          maisPerto = naves.indexOf(nave);
-        }
-      }else{
-        amigoDist = Math.sqrt(Math.pow(nave.x+nave.w/2-this.x-this.w/2, 2) + Math.pow(nave.y+nave.h/2-this.y-this.h/2, 2));
-        if(amigoDist < 960)
-          perigo -= nave.batalha;
-      }
+    this.vai = 0;
+    this.tiroX = (game.mouseX + cam.x);
+    this.tiroY = (game.mouseY + cam.y);
+    if(this.classe != 17 && this.classe != 29)
+      this.rot = Math.atan2(this.tiroY - (this.y + this.h / 2), this.tiroX - (this.x + this.w / 2));
+    if(this.left || this.right || this.up || this.down){
+      this.angulo = Math.atan2(this.down - this.up, this.right - this.left);
+      this.vai = 1;
     }
-  }
-  aim(){
-    if(this.autos || this.smasher){ // Autos
 
-    }else{
-      let difX = (game.mouseX + cam.x) - (this.x + this.w / 2);
-      let difY = (game.mouseY + cam.y) - (this.y + this.h / 2);
-      this.rot = Math.atan2(difY, difX);
-    }
   }
 }

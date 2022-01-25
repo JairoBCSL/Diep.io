@@ -1,8 +1,9 @@
 /*
+Separar canos conroláveis e não controláveis
+
+Technicians (ferramenta, engrenagem, átomo e engrenagem da medicina)1949
+Tiro no final do cano
 Só procurar se tiver na tela (cam.x<x<cam.w+cam.w)
-
-Technicians (ferramenta, engrenagem, átomo e engrenagem da medicina)
-
 Recoil
 Modos
 2 Teams
@@ -28,8 +29,8 @@ Classes:
   - Annihinator (4ª classe): Bala explode
 - Technician (3ª classe) Instala torreta
   - Engennier (4ª classe) Instala base talvez
-  - Scientist (4ª classe) Teleporta
-  - Medic (4ª classe) Cura em raio ou tiro, ainda não sei
+  - Scientist (4ª classe) Escudo muitxu louco
+  - Medic (4ª classe) Cura em raio
 
 O Escudador
 O Excalibur
@@ -42,7 +43,7 @@ var dRot = 0, rotAux = 0, rotA = 0, rot = 0;
 
 var classes = [
  //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59
-  [4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Normal
+  [4, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 4, 4, 4, 4],//Normal
   [4, 4, 4, 4, 4, 4, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Machine Gun
   [4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Twin
   [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],//Sniper
@@ -63,11 +64,11 @@ var classes = [
 ];
 
 var game = {
-  width: 8192,
-  height: 6144,
+  width: 2*8192,
+  height: 2*8192,//6144
   canvas: document.createElement("canvas"),
   start: function(){
-    this.canvas.width = 1200;
+    this.canvas.width = 1600;
     this.canvas.height = 900;
     game.keys = [];
     game.mouseX = [];
@@ -102,9 +103,9 @@ var game = {
 var cam = {
   x: 0,
   y: 0,
-  w: 1200,
+  w: 1600,
   h: 900,
-  wMin: 1200,
+  wMin: 1600,
   hMin: 900,
   port: 0.45,
   leftEdge: function(){ // Janela imóvel
@@ -165,34 +166,113 @@ var imagens = {
 imagens.init();
 hud = new Hud();
 map = new Map(mapas.layers, 64, 64, 256, 3);
-naves = [];
 balas = [];
+drones = [];
+naves = [];
 npcs = [];
 bases = [];
-drones = [];
-bases.push(new Base(32, 32, 1200, game.height - 32 - 32, 0));
-bases.push(new Base(game.width - 1200 - 32, 32, 1200, game.height - 32 - 32, 1));
-naves.push(new Player(2800, 3256, 48, 3, 0, 0, naves.length));
-//naves.push(new Mothership(2800, 3256, 192, 3, 0, 60, naves.length));
-naves.push(new Tower(3256, 3256, 192, 3, 1, 62, naves.length));
-//naves.push(new Enemy("nave.png", spriteX, 4400, 64, 64, 64, 3, 1, 0, naves.length));
-for(let i = 0; i < 0; i++)
-  naves.push(new Enemy(bases[0].x + Math.floor(Math.random() * bases[0].w - 32), bases[0].y + Math.floor(Math.random() * bases[0].h - 32), 48, 3, 0, 0, naves.length));
-for(let i = 0; i < 0; i++)
-  naves.push(new Enemy(4000 + Math.floor(Math.random() * bases[0].w - bases[0].w), 4000 + Math.floor(Math.random() * bases[0].w - bases[0].w/2), 48, 3, 1, 0, naves.length));
-  //naves.push(new Enemy("nave.png", spriteX, bases[1].x + Math.floor(Math.random() * bases[1].w - 32), bases[1].y + Math.floor(Math.random() * bases[1].h - 32), 64, 64, 3, 1, 0, naves.length));
+naves.push(new Player(game.width*0.05, game.height*0.96, 48, 3, 0, 0, naves.length));
+bases.push(new Base(game.width*0.01, game.height*0.945, game.width*0.045, game.height*0.045, 0));
+naves.push(new Tower(game.width*0.055-176, game.height*0.65-176, 192, 3, 0, 64, naves.length)); // Top
+naves.push(new Tower(game.width*0.055-176, game.height*0.45-176, 192, 3, 0, 61, naves.length));
+naves.push(new Tower(game.width*0.055-176, game.height*0.25-176, 192, 3, 0, 62, naves.length));
+naves.push(new Tower(game.width*0.2-176, game.height*0.8-176, 192, 3, 0, 64, naves.length)); // Mid
+naves.push(new Tower(game.width*0.3-176, game.height*0.7-176, 192, 3, 0, 61, naves.length));
+naves.push(new Tower(game.width*0.4-176, game.height*0.6-176, 192, 3, 0, 62, naves.length));
+naves.push(new Tower(game.width*0.35-176, game.height*0.945-176, 192, 3, 0, 64, naves.length)); // Bot
+naves.push(new Tower(game.width*0.55-176, game.height*0.945-176, 192, 3, 0, 61, naves.length));
+naves.push(new Tower(game.width*0.75-176, game.height*0.945-176, 192, 3, 0, 62, naves.length));
+naves.push(new Tower(game.width*0.1275-176, game.height*0.9225-176, 192, 3, 0, 63, naves.length)); // Base
+naves.push(new Tower(game.width*0.0775-176, game.height*0.8775-176, 192, 3, 0, 63, naves.length));
+naves.push(new Mothership(game.width*0.0775-187, game.height*0.9225-187, 192, 3, 0, 60, naves.length));
+
+bases.push(new Base(game.width*0.955, game.height*0.01, game.width*0.045, game.height*0.045, 1));
+naves.push(new Tower(game.width*0.945-176, game.height*0.35-176, 192, 3, 1, 64, naves.length)); // Bot
+naves.push(new Tower(game.width*0.945-176, game.height*0.55-176, 192, 3, 1, 61, naves.length));
+naves.push(new Tower(game.width*0.945-176, game.height*0.75-176, 192, 3, 1, 62, naves.length));
+naves.push(new Tower(game.width*0.8-176, game.height*0.2-176, 192, 3, 1, 64, naves.length)); // Mid
+naves.push(new Tower(game.width*0.7-176, game.height*0.3-176, 192, 3, 1, 61, naves.length));
+naves.push(new Tower(game.width*0.6-176, game.height*0.4-176, 192, 3, 1, 62, naves.length));
+naves.push(new Tower(game.width*0.65-176, game.height*0.055-176, 192, 3, 1, 64, naves.length)); // Top
+naves.push(new Tower(game.width*0.45-176, game.height*0.055-176, 192, 3, 1, 61, naves.length));
+naves.push(new Tower(game.width*0.25-176, game.height*0.055-176, 192, 3, 1, 62, naves.length));
+naves.push(new Tower(game.width*0.8725-176, game.height*0.0775-176, 192, 3, 1, 63, naves.length)); // Base
+naves.push(new Tower(game.width*0.9225-176, game.height*0.1225-176, 192, 3, 1, 63, naves.length));
+naves.push(new Mothership(game.width*0.9225-187, game.height*0.0775-187, 192, 3, 1, 60, naves.length));
+
+for(let i = 0; i < 4; i++)
+  naves.push(new Enemy(bases[0].x + Math.floor(Math.random() * (bases[0].w-48)), bases[0].y + Math.floor(Math.random() * (bases[0].h-48)), 48, 3, 0, 0, naves.length));
+for(let i = 0; i < 5; i++)
+  naves.push(new Enemy(bases[1].x + Math.floor(Math.random() * (bases[1].w-48)), bases[1].y + Math.floor(Math.random() * (bases[1].h-48)), 48, 3, 1, 0, naves.length));
 for(let i = 0; i < 0; i++)
   npcs.push(new Npc(bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 0));
-for(let i = 0; i < 0; i++)
-  npcs.push(new Npc(bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 1));
-for(let i = 0; i < 0; i++)
-  npcs.push(new Npc(bases[0].x + Math.floor(Math.random() * bases[0].w - 16), bases[0].y + Math.floor(Math.random() * bases[0].h - 16), 2));
-for(let i = 0; i < 0; i++)
-  npcs.push(new Npc(bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 0));
-for(let i = 0; i < 0; i++)
-  npcs.push(new Npc(bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 1));
-for(let i = 0; i < 0; i++)
-  npcs.push(new Npc(bases[1].x + Math.floor(Math.random() * bases[1].w - 16), bases[1].y + Math.floor(Math.random() * bases[1].h - 16), 2));
+
+paredes = [];
+paredes.push(new Parede([ // South
+  {x:game.width*0.1, y:game.height*0.9},
+  {x:game.width*0.01, y:game.height*0.99},
+  {x:game.width*0.9, y:game.height*0.99},
+  {x:game.width*0.8, y:game.height*0.9},
+  {x:game.width*0.1, y:game.height*0.9}
+]));
+paredes.push(new Parede([ // Southeast
+  {x:game.width*0.8, y:game.height*0.9},
+  {x:game.width*0.9, y:game.height*0.99},
+  {x:game.width*0.99, y:game.height*0.9},
+  {x:game.width*0.9, y:game.height*0.8},
+  {x:game.width*0.8, y:game.height*0.9}
+]));
+paredes.push(new Parede([ // East
+  {x:game.width*0.9, y:game.height*0.1},
+  {x:game.width*0.9, y:game.height*0.8},
+  {x:game.width*0.99, y:game.height*0.9},
+  {x:game.width*0.99, y:game.height*0.01},
+  {x:game.width*0.9, y:game.height*0.1}
+]));
+paredes.push(new Parede([ // Northeast
+  {x:game.width*0.7, y:game.height*0.1},
+  {x:game.width*0.75, y:game.height*0.25},
+  {x:game.width*0.9, y:game.height*0.3},
+  {x:game.width*0.99, y:game.height*0.2},
+  {x:game.width*0.8, y:game.height*0.01},
+  {x:game.width*0.7, y:game.height*0.1}
+]));
+paredes.push(new Parede([ // North
+  {x:game.width*0.1, y:game.height*0.01},
+  {x:game.width*0.2, y:game.height*0.1},
+  {x:game.width*0.9, y:game.height*0.1},
+  {x:game.width*0.99, y:game.height*0.01},
+  {x:game.width*0.1, y:game.height*0.01}
+]));
+paredes.push(new Parede([ // Northwest
+  {x:game.width*0.01, y:game.height*0.1},
+  {x:game.width*0.1, y:game.height*0.2},
+  {x:game.width*0.2, y:game.height*0.1},
+  {x:game.width*0.1, y:game.height*0.01},
+  {x:game.width*0.01, y:game.height*0.1}
+]));
+paredes.push(new Parede([ // West
+  {x:game.width*0.01, y:game.height*0.1},
+  {x:game.width*0.01, y:game.height*0.99},
+  {x:game.width*0.1, y:game.height*0.9},
+  {x:game.width*0.1, y:game.height*0.2},
+  {x:game.width*0.01, y:game.height*0.1}
+]));
+paredes.push(new Parede([ // Southwest
+  {x:game.width*0.01, y:game.height*0.8},
+  {x:game.width*0.2, y:game.height*0.99},
+  {x:game.width*0.3, y:game.height*0.9},
+  {x:game.width*0.25, y:game.height*0.75},
+  {x:game.width*0.1, y:game.height*0.7},
+  {x:game.width*0.01, y:game.height*0.8}
+]));
+paredes.push(new Parede([ // Mid
+  {x:game.width*0.01, y:game.height*0.9},
+  {x:game.width*0.1, y:game.height*0.99},
+  {x:game.width*0.99, y:game.height*0.1},
+  {x:game.width*0.9, y:game.height*0.01},
+  {x:game.width*0.01, y:game.height*0.9}
+]));
 
 function startGame(){
   game.start();
@@ -202,7 +282,7 @@ function update(){
   redraw();
   controls();
   physic();
-  debug();
+  //debug();
 }
 function redraw(){
   game.clear();
@@ -229,9 +309,12 @@ function redraw(){
   for(let drone of drones)
     if(isOnScreen(drone))
       drone.draw();
-
   hud.draw();
+  //mapa.draw();
+  for(let i = 0; i < paredes.length; i++)
+    paredes[i].draw();
   ctx.restore();
+
 }
 function controls(){
   keyPressed();
@@ -318,7 +401,7 @@ var collision = function(r1, r2){
   }
   else
     return false;
-};
+}
 var collisionSQ = function(r1, r2){
   if(r1.x+ r1.w > r2.x &&
       r1.x < r2.x + r2.w &&
@@ -326,6 +409,39 @@ var collisionSQ = function(r1, r2){
       r2.y < r1.y + r1.h)
     return true;
   return false;
+}
+var collide = function(r1, r2){
+  let difX = (r2.x + r2.w / 2) - (r1.x + r1.w / 2);
+  let difY = (r2.y + r2.h / 2) - (r1.y + r1.h / 2);
+  let angulo = Math.atan2(difY, difX);
+  for(let i = 0; i < paredes.length; i++){
+    if(paredes[i].isDentro({x:r1.x+r1.w/2-Math.cos(angulo), y:r1.y+r1.h/2})){
+      if(r1.pesado != 1)
+        r1.x -= Math.cos(angulo);
+      i = paredes.length;
+    }
+  }
+  for(let i = 0; i < paredes.length; i++){
+    if(paredes[i].isDentro({x:r1.x+r1.w/2, y:r1.y+r1.h/2-Math.sin(angulo)})){
+      if(r1.pesado != 1)
+        r1.y -= Math.sin(angulo);
+      i = paredes.length;
+    }
+  }
+  for(let i = 0; i < paredes.length; i++){
+    if(paredes[i].isDentro({x:r2.x+r2.w/2+Math.cos(angulo), y:r2.y+r2.h/2})){
+      if(r2.pesado != 1)
+        r2.x += Math.cos(angulo);
+      i = paredes.length;
+    }
+  }
+  for(let i = 0; i < paredes.length; i++){
+    if(paredes[i].isDentro({x:r2.x+r2.w/2, y:r2.y+r2.h/2+Math.sin(angulo)})){
+      if(r2.pesado != 1)
+        r2.y += Math.sin(angulo);
+      i = paredes.length;
+    }
+  }
 }
 var isOnScreen = function(nave){
   if(nave.x < cam.x + cam.w &&
@@ -339,11 +455,11 @@ var isOnScreen = function(nave){
 // Debug
 function debug(){
   let x = 0;
-  //for(let i = 0; i < naves.length; i++)
+  //for(let i = 0; i < drones.length; i++)
     //if(collision({x:game.mouseX+cam.x,y:game.mouseY+cam.y,w:1,h:1}, naves[i]))
       //x = i;
   text = "";
-  text += "<br><br>Class: " + naves[x].classe;
+  /*text += "<br><br>Class: " + naves[x].classe;
   text += "<br><br>Pontos: " + naves[x].pt;
   text += "<br><br>Pontos de Classe: " + naves[x].ptClasse;
   text += "<br><br>HPRegen: (" + naves[x].clStats[0] + ", " + naves[x].ptStats[0] + ") => " + naves[x].hpRegen + " - " + naves[x].regenCooldownMax;
@@ -358,7 +474,17 @@ function debug(){
   text += "<br><br>Exp: (" + naves[x].exp + "," + naves[x].nextLv + ") => " + naves[x].lv;
   text += "<br><br>Reload: (" + naves[x].reload + " / " + naves[x].reloadMax + ")";
   text += "<br><br>Reload Auto: (" + naves[x].reloadAuto + " / " + naves[x].reloadMax + ")";
-  text += "<br><br>Drones: (" + naves[x].drones + " / " + naves[x].dronesMax + ")";
+  text += "<br><br>Drones: (" + naves[x].drones + " / " + naves[x].dronesMax + ")";*/
+  let x0 = (naves[x].x+naves[x].w/2) / game.width;
+  let y0 = (naves[x].y+naves[x].h/2) / game.height;
+  text += "<br><br>Posição: "+"("+x0+","+y0+")";
+  //text += "<br><br>South: "+(paredes[0].isDentro({x:naves[meuID].x+naves[meuID].w/2, y:naves[meuID].y+naves[meuID].h/2}));
+  //text += "<br><br>Southeast: "+(paredes[1].isDentro({x:naves[meuID].x+naves[meuID].w/2, y:naves[meuID].y+naves[meuID].h/2}));
+  //text += "<br><br>East: "+(paredes[2].isDentro({x:naves[meuID].x+naves[meuID].w/2, y:naves[meuID].y+naves[meuID].h/2}));
+  //text += "<br><br>North: "+(paredes[3].isDentro({x:naves[meuID].x+naves[meuID].w/2, y:naves[meuID].y+naves[meuID].h/2}));
+  //text += "<br><br>Northwest: "+(paredes[4].isDentro({x:naves[meuID].x+naves[meuID].w/2, y:naves[meuID].y+naves[meuID].h/2}));
+  //text += "<br><br>West: "+(paredes[0].isDentro({x:naves[meuID].x+naves[meuID].w/2, y:naves[meuID].y+naves[meuID].h/2}));
+  //text += "<br><br>Mid: "+(paredes[6].isDentro({x:naves[meuID].x+naves[meuID].w/2, y:naves[meuID].y+naves[meuID].h/2}));
   count++;
   dRot = Math.abs(rotA - naves[0].rot);
   rotA = naves[0].rot;

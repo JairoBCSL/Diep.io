@@ -24,7 +24,6 @@ class Hud{
     if(naves[0].ptClasse){
       for(let i = 0; i < this.botoesClasses.length; i++){
         if(collisionSQ({x:game.mouseX+cam.x,y:game.mouseY+cam.y,w:1,h:1}, this.botoesClasses[i])){
-          console.log("Classe: "+i);
           naves[0].changeClass(i);
           naves[0].updateStats();
         }
@@ -84,18 +83,52 @@ class Hud{
     var ctx = game.canvas.getContext("2d");
     let x = cam.x + cam.w * 0.775, y = cam.y + cam.h * 0.775;
     let w = cam.w * 0.2, h = cam.h * 0.2;
+    let x0, y0, w0, h0, wSRC;
     ctx.fillStyle = "#888a";
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = "#000f";
     ctx.strokeRect(x, y, w, h);
     ctx.strokeStyle = "#0008";
-    ctx.strokeRect(x+0.1*w, y+0.1*h, w*0.8, h*0.8);
+    ctx.strokeRect(x, y, w, h);
     ctx.fillStyle = "#000a";
-    x = x + naves[meuID].x / game.width * w; w = w / 30;
-    y = y + naves[meuID].y / game.height * h; h = h / 20;
-    ctx.translate(+ x + w / 2, + y + h / 2);
-    ctx.rotate(naves[meuID].rot);
-    ctx.translate(- x - w / 2, - y - h / 2);
-    ctx.drawImage(imagens.balas, 512, 128 * naves[meuID].team, 128, 120, x, y, w, h);
+    for(let i = 0; i < naves.length; i++){
+      ctx.save();
+      if(naves[i].classe <= 59){
+        x0 = x + naves[i].x / game.width * w; w0 = w / 30;
+        y0 = y + naves[i].y / game.height * h; h0 = h / 20;
+        wSRC = 512;
+        ctx.translate(+ x0 + w0 / 2, + y0 + h0 / 2);
+        ctx.rotate(naves[i].rot);
+        ctx.translate(- x0 - w0 / 2, - y0 - h0 / 2);
+      }else if(naves[i].classe == 60){
+        x0 = x + naves[i].x / game.width * w; w0 = w / 15;
+        y0 = y + naves[i].y / game.height * h; h0 = h / 10;
+        wSRC = 1113;
+        ctx.translate(+ x0 + w0 / 2, + y0 + h0 / 2);
+        ctx.rotate(naves[i].rot);
+        ctx.translate(- x0 - w0 / 2, - y0 - h0 / 2);
+      }else{
+        x0 = x + naves[i].x / game.width * w; w0 = w / 30;
+        y0 = y + naves[i].y / game.height * h; h0 = h / 20;
+        wSRC = 258;
+      }
+      ctx.drawImage(imagens.balas, wSRC, 128 * naves[i].team, 128, 128, x0, y0, w0, h0);
+      ctx.restore();
+    }
+
+    for(let j = 0; j < paredes.length; j++){
+      ctx.beginPath();
+      ctx.moveTo(x+paredes[j].vertices[0].x/game.width*w, y+paredes[j].vertices[0].y/game.height*h);
+      for(let i = 0; i < paredes[j].vertices.length; i++)
+        ctx.lineTo(x+paredes[j].vertices[i].x/game.width*w, y+paredes[j].vertices[i].y/game.height*h);
+      ctx.strokeStyle = "#000f";
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "#00f6"; // Bases
+    ctx.fillRect(x+bases[0].x/game.width*w, y+bases[0].y/game.height*h, bases[0].w/game.width*w, bases[0].h/game.height*h);
+    ctx.fillStyle = "#f006";
+    ctx.fillRect(x+bases[1].x/game.width*w, y+bases[1].y/game.height*h, bases[1].w/game.width*w, bases[1].h/game.height*h);
+
   }
 }
